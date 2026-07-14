@@ -6,7 +6,7 @@ title: 行動自然人憑證
 
 ## 概述
 
-<img src="https://play-lh.googleusercontent.com/dak17KhcR04WoUIVe3RhAKfRve1wx2zX7OX69uXQVWYzBmQhwzm8L_xWCczpgrXcb16bYRzTV29m_16zE1Pinw=w480-h960-rw" alt="行動自然人憑證 App 圖示" width="96">
+<img src="https://play-lh.googleusercontent.com/dak17KhcR04WoUIVe3RhAKfRve1wx2zX7OX69uXQVWYzBmQhwzm8L_xWCczpgrXcb16bYRzTV29m_16zE1Pinw=w480-h960-rw" alt="行動自然人憑證 App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
 本報告依據 SRTT 與分包截取工具分析**行動自然人憑證**（`tw.gov.moi.tfido`）App 的網路請求。此 App 由內政部提供，主要用途為**身分驗證與數位簽章**，使用者可透過生物辨識完成免插卡、免帳密之政府服務身分驗證。
 
