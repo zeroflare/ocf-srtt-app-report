@@ -20,17 +20,16 @@ title: 行動自然人憑證
 
 ## 網域分析
 
-| 網域 | 所屬單位 | 是否在台灣 | 是否為雲端服務 | 解析 IP | ASN | 國家 | 主要用途 |
-|------|----------|------------|----------------|---------|-----|------|----------|
-| `fido.moi.gov.tw` | 內政部（MOI） | 是 | 否 | 117.56.7.69 | AS4782 | TW | 身分驗證、簽章、推播 Token 註冊、App 內容 |
-| `iid.googleapis.com` | Google | 是（Anycast 節點） | 是（Firebase Cloud Messaging） | 172.217.x.4<br>216.239.x.223<br>見下方 DNS 解析 | AS15169 | TW | 推播通知 Token 註冊與 Topic 訂閱 |
-| `app-analytics-services.com` | Google | 是（Anycast 節點） | 是（Firebase / Google Analytics） | 142.250.77.206 | AS15169 | TW | App 使用行為分析 |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN  | 主要用途 |
+|------|----------|------------|----------------|---------|----------|
+| `fido.moi.gov.tw` | 內政部 | 台灣 | 否 | GSN | 身分驗證、簽章、推播 Token 註冊、App 內容 |
+| `iid.googleapis.com` | Google | 台灣 | 是  | Google | 推播通知 Token 註冊與 Topic 訂閱 |
+| `app-analytics-services.com` | Google | 台灣 | 是 | Google | App 使用行為分析 |
 
 > **國家判定說明**：除 `117.56.7.69`（GSN，WHOIS 確認）外，其餘 Google 服務採 Anycast，連線節點判定位於台灣，營運商仍為 Google 海外雲端。
 
-### 網域細部說明
 
-#### 1. fido.moi.gov.tw（內政部，台灣，非雲端）
+### 1. fido.moi.gov.tw（內政部，台灣，非雲端）
 
 * **域名性質**：`.gov.tw` 政府域名，為內政部行動自然人憑證（FIDO）官方服務端點
 * **地理位置**：解析 IP `117.56.7.69` 隸屬 **GSN（Government Service Network，政府服務網路）**，ASN **AS4782**（Data Communication Business Group），國家 **TW（台灣）**，機房位於台北
@@ -45,7 +44,7 @@ title: 行動自然人憑證
 
 ASN **AS4782** 為 Data Communication Business Group（GSN）。
 
-#### 2. iid.googleapis.com（Google，台灣 Anycast 節點，雲端）
+### 2. iid.googleapis.com（Google，台灣 Anycast 節點，雲端）
 
 * **域名性質**：Google Firebase Cloud Messaging（FCM）的 Instance ID 服務
 * **地理位置**：判定連線節點位於**台灣**（Google Anycast 邊緣節點）
@@ -71,7 +70,7 @@ ASN **AS4782** 為 Data Communication Business Group（GSN）。
 
 ASN **AS15169** 為 Google LLC。
 
-#### 3. app-analytics-services.com（Google，台灣 Anycast 節點，雲端）
+### 3. app-analytics-services.com（Google，台灣 Anycast 節點，雲端）
 
 * **域名性質**：Google Firebase Analytics / App Analytics 服務
 * **地理位置**：IP `142.250.77.206`，ASN **AS15169**（Google LLC），判定連線節點位於**台灣**
