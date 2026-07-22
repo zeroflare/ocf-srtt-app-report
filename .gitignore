@@ -1,0 +1,13 @@
+# Jekyll 建置與相依產物
+_site/
+.jekyll-cache/
+.jekyll-metadata
+vendor/
+.bundle/
+Gemfile.lock
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store

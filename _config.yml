@@ -4,3 +4,18 @@ remote_theme: pages-themes/cayman@v0.2.0
 
 url: "https://zeroflare.github.io"
 baseurl: "/ocf-srtt-app-report"
+
+# 讓所有頁面套用自訂的 _layouts/default.html（內含樣式與頁首頁尾）
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+# 靜音來自 Cayman 遠端主題 SCSS 的 Dart Sass 棄用警告（@import、全域 invert()）
+# 這些警告源自主題本身、非本專案內容，CSS 仍可正常編譯
+sass:
+  quiet_deps: true
+  silence_deprecations:
+    - import
+    - global-builtin
