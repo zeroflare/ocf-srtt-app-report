@@ -8,7 +8,7 @@ title: 蝦皮購物
 
 <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/31/03/d0/3103d03a-a33a-77b1-7723-a1d7fcc2cf60/AppIcon-0-1x_U007emarketing-0-6-0-0-85-220-0.png/512x512bb.jpg" alt="蝦皮購物 App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
-本報告依據 SRTT 與分包截取工具分析**蝦皮購物**（`com.beeasy.shopee.tw`）App 的網路請求。此 App 由 **Shopee（母集團 Sea Limited，新加坡）**提供，為台灣主要電商平台，功能包含商城購物、直播、聊聊客服、ShopeePay 支付、蝦幣等。
+本報告依據 SRTT 與封包擷取工具分析**蝦皮購物**（`com.beeasy.shopee.tw`）App 的網路請求。此 App 由 **Shopee（母集團 Sea Limited，新加坡）**提供，為台灣主要電商平台，功能包含商城購物、直播、聊聊客服、ShopeePay 支付、蝦幣等。
 
 **與 LINE、Google 地圖同屬外商服務**：蝦皮母集團為新加坡 Sea Group，且**自建網路（擁有專屬 ASN）**。本報告最顯著之發現是：雖為「蝦皮購物**台灣**」，但相當比例之功能網域（API、追蹤、設定、客服，**乃至 ShopeePay 支付**）實際解析至 **Shopee 新加坡（AS138341）**節點——資料流向新加坡屬平台本質。
 
@@ -17,7 +17,7 @@ title: 蝦皮購物
 | App 名稱 | 蝦皮購物 |
 | App 版本 | 3.78.33.7.12.4（App Store 標示 3.79.x） |
 | 裝置 | iPhone 16 Pro / iOS 26.5.2 |
-| 擷取時間 | 2026-07-22 |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，見文末補充）** |
 | 涉及網域 | 約 45 個（App 相關；另有 iOS 系統背景已排除） |
 
 > **測試方式與歸屬說明**：本次為功能點選瀏覽之測試，未實際下單付款。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級之細節不在本次擷取範圍內。蝦皮擁有專屬 ASN（**AS131623 Shopee Taiwan**、**AS138341 Shopee Singapore**），故可較明確判定各服務之實體網路歸屬。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊。
@@ -179,3 +179,24 @@ App 啟動 / 商城首頁
 蝦皮購物為**新加坡 Sea Group** 之外商電商，且**自建網路**（專屬 ASN，判定明確）。其**商城首頁**（`shopee.tw`）在 **Shopee Taiwan（台灣，AS131623）**；但**大量核心功能**——API、**使用者行為追蹤（UBT／APM）**、直播、遠端設定、客服，**乃至 ShopeePay 支付**——均實際解析至 **Shopee Singapore（新加坡，AS138341）**。換言之，台灣使用者的**行為追蹤與付款資料，路由至新加坡的蝦皮基礎設施**，此為使用蝦皮（外商平台）之本質。此外亦整合 Meta、Google、AppsFlyer 等第三方廣告與追蹤。
 
 > **隱私風險評估**：使用蝦皮的前提，是接受**行為資料與交易（含 ShopeePay 付款）由新加坡 Sea Group 之基礎設施處理**——這是外商電商平台的本質，非隱蔽外洩。相較台灣本土電商，蝦皮的資料流向以**新加坡**為主軸；其自有之行為追蹤（UBT）範圍廣泛，並疊加 Meta／Google／AppsFlyer 等第三方追蹤。本次為未下單之瀏覽式測試，實際下單、付款與聊聊時之個資（收件人、地址、付款、對話）傳輸內容與加密方式，建議後續加測 HTTP 明細以完整評估。
+
+---
+
+## 複測補充（2026-07-30，raw data）
+
+本次複測共 245 筆、77 個主機，**全程為 CONNECT、內容未解密**（憑證綁定），以域名／IP 據實記錄。
+
+**核心與追蹤確認**（連線 IP 對照）：
+* **行為追蹤（自家 UBT／APM）**：`ubt.tracking.shopee.tw`、`ubta.tracking.shopee.tw`、`apm.tracking.shopee.tw`、`monitor-report.affiliate.shopee.tw` → `147.136.x`（Shopee 專屬 ASN，APNIC）／`103.115.76.x`（**Shopee Singapore**）。
+* **API／基礎設施**：`df.infra.shopee.tw`、`patronus.idata.shopeemobile.com`、`dem.shopee.com`、`remote-config.gslb.sgw.shopeemobile.com`、`msdk.shopee.tw`、`live-apm.shopee.tw` → 多為 `103.115.76.x`／`103.117.4.x`（新加坡）。
+* **商城／內容**：`shopee.tw`、`mall.shopee.tw` → `147.136.172.131`；影音／圖片 `down-aka-tw.vod/img.susercontent.com`、`deo.shopeemobile.com` 走台灣邊緣（`210.65.144.x`／`203.69.x`）。
+* **直播／遊戲／客服**：`live.shopee.tw`、`games.shopee.tw`、`data.cs.shopee.tw`、`chatbot.shopee.tw`、`report.chatbot.shopee.com`。
+* **賣場（新加坡站）**：`seller.shopee.sg`、`df.infra.test.shopee.sg`（SG）。
+
+**同集團與第三方**：
+* **Garena（Sea 集團）**：`content.garena.com`、`cdngarenanow-a.akamaihd.net`。
+* **AppsFlyer（歸因）**：`att-launches.appsflyersdk.com`。
+* **Google**：`crashlyticsreports-pa.googleapis.com`、`firebasestorage`、`firestore`、`content-firebaseappcheck.googleapis.com`、`app-measurement.com`、`www.googletagmanager.com`、`clients3.google.com`。
+* **Meta**：`www.facebook.com`、`connect.facebook.net`、`graph.facebook.com`。
+
+**小結**：與初測一致——**核心 API／追蹤／基礎設施主要落在新加坡 Shopee（`103.115.76.x`）**，圖片影音走台灣邊緣，並疊加 Garena、AppsFlyer、Google、Meta。本次未解密，無法檢視內容。

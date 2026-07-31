@@ -1,3 +1,7 @@
+# 封包擷取原始檔（含測試者真實個資，嚴禁提交／公開）
+har/
+*.har
+
 # Jekyll 建置與相依產物
 _site/
 .jekyll-cache/
