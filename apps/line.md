@@ -8,7 +8,7 @@ title: LINE
 
 <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/3d/1c/a8/3d1ca800-855b-c093-0f19-038316458142/basic_default-0-0-1x_U007epad-0-6-0-0-sRGB-0-85-220.png/512x512bb.jpg" alt="LINE App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
-本報告依據 SRTT 與分包截取工具分析 **LINE**（`jp.naver.line`）App 的網路請求。此 App 由 **LY Corporation（日本，LINE 與 Yahoo! JAPAN 合併後之營運公司，母集團為 SoftBank／Naver）**提供，是一款整合即時通訊、社群（VOOM 短影音）、新聞（LINE Today）、貼圖商店、購物（LINE Shopping）、支付與銀行（LINE Pay／LINE Bank）、票券發票、音樂、旅遊、點數等眾多服務之**超級 App（super app）**。
+本報告依據 SRTT 與封包擷取工具分析 **LINE**（`jp.naver.line`）App 的網路請求。此 App 由 **LY Corporation（日本，LINE 與 Yahoo! JAPAN 合併後之營運公司，母集團為 SoftBank／Naver）**提供，是一款整合即時通訊、社群（VOOM 短影音）、新聞（LINE Today）、貼圖商店、購物（LINE Shopping）、支付與銀行（LINE Pay／LINE Bank）、票券發票、音樂、旅遊、點數等眾多服務之**超級 App**。
 
 **與前幾款台灣政府／金融 App 本質不同**：LINE 為**外商（日本）**服務，其核心通訊與社群資料**本即由日本公司處理**，跨境傳輸至日本屬平台本質、而非隱蔽外洩。本報告聚焦於各服務之資料流向、CDN 節點分布，以及所整合之第三方廣告與追蹤生態。
 
@@ -17,10 +17,10 @@ title: LINE
 | App 名稱 | LINE |
 | App 版本 | 26.10.0 |
 | 裝置 | iPhone 16 Pro / iOS 26.5.2 |
-| 擷取時間 | 2026-07-22 |
-| 涉及網域 | 約 80 個（SRTT 41 + Stream 補充；含 LINE 各服務、CDN 與第三方廣告／追蹤） |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，見文末補充）** |
+| 涉及網域 | 約 80 個（初測）；複測觀察到 80 個主機（含 LINE 各服務、CDN 與第三方廣告／追蹤） |
 
-> **測試方式與歸屬說明**：本次操作涵蓋貼圖、新聞（Today）、短影音（VOOM）、LINE Bank 等功能。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級（method／path／個資欄位／加密方式）之細節不在本次擷取範圍內。因 SRTT／MITM 為**全裝置**抓包，且 LINE 為整合眾多服務與第三方 SDK 之超級 App，個別廣告／追蹤網域之確切歸屬（LINE 本體或內嵌內容）建議另以 iOS「App 隱私權報告」佐證；本報告就觀察到之網域與流向據實記錄。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊 IP 與 ASN。網域數量龐大，以下依角色分組並列舉代表網域。
+> **測試方式與歸屬說明**：本次操作涵蓋貼圖、新聞（Today）、短影音（VOOM）、LINE Bank 等功能。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級（method／path／個資欄位／加密方式）之細節不在本次擷取範圍內。因 SRTT／MITM 為**全裝置**擷取，且 LINE 為整合眾多服務與第三方 SDK 之超級 App，個別廣告／追蹤網域之確切歸屬（LINE 本體或內嵌內容）建議另以 iOS「App 隱私權報告」佐證；本報告就觀察到之網域與流向據實記錄。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊 IP 與 ASN。網域數量龐大，以下依角色分組並列舉代表網域。
 
 ---
 
@@ -208,4 +208,31 @@ LINE 是**日本 LY Corporation** 營運之外商超級 App，其**核心通訊�
 
 LINE 作為超級 App 整合了**相當廣泛的第三方廣告與追蹤生態**——Google 廣告全家桶、Moloco 廣告 DSP、**韓國 Dable 內容推薦**、Meta、Bing、Adjust 歸因，以及 Firebase／Sentry 監控與 V-Key 安全 SDK。這些多在 Today 新聞、VOOM、購物等內容場景載入，會將使用行為與識別資訊傳送至美國、韓國等地之第三方。
 
-> **隱私風險評估**：使用 LINE 的核心前提，是接受**通訊／社群資料由日本業者處理**（平台本質，非漏洞）。相對地，**LINE Bank／Pay 的台灣金融資料留在境內**，受國內監理。較需個別留意者為**廣泛的第三方廣告與跨站追蹤**（含韓國 Dable、多家美國廣告網），其傳送之瀏覽行為與識別資訊範圍較廣。惟本次為**全裝置抓包、未逐一深入各功能、且無 HTTP 內容**，個別廣告／追蹤之確切歸屬與傳輸內容尚無法逐一確認；建議以 iOS「App 隱私權報告」按 App 檢視，並針對特定功能加測 HTTP 明細以完整評估。
+> **隱私風險評估**：使用 LINE 的核心前提，是接受**通訊／社群資料由日本業者處理**（平台本質，非漏洞）。相對地，**LINE Bank／Pay 的台灣金融資料留在境內**，受國內監理。較需個別留意者為**廣泛的第三方廣告與跨站追蹤**（含韓國 Dable、多家美國廣告網），其傳送之瀏覽行為與識別資訊範圍較廣。惟本次為**全裝置擷取、未逐一深入各功能、且無 HTTP 內容**，個別廣告／追蹤之確切歸屬與傳輸內容尚無法逐一確認；建議以 iOS「App 隱私權報告」按 App 檢視，並針對特定功能加測 HTTP 明細以完整評估。
+
+---
+
+## 複測補充（2026-07-30，raw data）
+
+本次複測共 1773 筆、80 個主機，操作涵蓋 Today／VOOM／貼圖／購物／LINE Bank。多數 LINE 原站可解密（GET／POST），核心傳輸則為二進位協定（未解密）。以下據實記錄：
+
+**核心確認**：
+* `legy.line-apps.com`（166，多為 POST）→ `147.92.146.129`（LINE Corp／AS38631，**營運日本**，平台本質）；另有 **209 筆無 host 之連線**同樣連 `147.92.x`，研判為 LEGY 二進位傳輸協定（未解密）。
+* `uts-front.line-apps.com`（102，POST）、`a.line.me`（97）、`crs-hometab-event.line.me`、`alloy-gw.line.dev`：LINE 自家遙測／首頁事件。
+* `buy.line.me`（207，本次最高）→ `210.61.248.9`（**HiNet 台灣節點**）：LINE 購物。
+* 靜態 CDN `*.line-scdn.net`：分布 Akamai（`184.25.x`）、AWS CloudFront（`54.192.x` 美）、HiNet（`210.71.227.x` 台）。
+
+**本次實際出現之第三方**：
+* **Dable（韓國內容推薦）**：`api.dable.io`（AWS 首爾）、`static.dable.io`、`images.dable.io`。
+* **V-Key（行動安全 SDK）**：`cloud.v-key.com`、`1176-ti.cloud.v-key.com`（Azure）。
+* **Sentry**：`ly.my.sentry.io`（GCP）。
+* **Google**：`analytics.google.com`、`www.googletagmanager.com`、`fundingchoicesmessages.google.com`（同意管理）、`ep2.adtrafficquality.google`。
+* **Meta**：`www.facebook.com`、`connect.facebook.net`。
+* **LINE Tag**：`tr.line.me`、`lap-click.tr.line.me`。
+* **Trip.com（攜程旅遊）**：`ak-s-cw.tripcdn.com`、`tw.trip.com`、`ak-d.tripcdn.com`（走 HiNet 台灣節點 `210.71.227.x`，營運海外）。
+* **Coupang（酷澎）**：`link.tw.coupang.com`（HiNet 台灣節點）。
+* 其他：`mpc-prod-…run.app`（Google Cloud Run）、`miniapptw.landpress.line.me`（AWS）、`line-img.linebank.com.tw`（Cloudflare）。
+
+**本次未再出現**（初測曾列，供對照）：Moloco、Bing（`bat.bing.com`）、Adjust（`view.adjust.com`）、Twitter 嵌入。
+
+**疑似雜訊／待確認**：Trip.com、Coupang 於本 App 多見於 Today／購物內容場景，惟全裝置擷取下不排除跨 App；記為待確認。

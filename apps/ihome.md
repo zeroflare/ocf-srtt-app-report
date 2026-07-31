@@ -8,7 +8,7 @@ title: 智生活
 
 <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/28/46/45/284645db-eff5-e79c-1826-20f73995a345/AppIcon-1x_U007emarketing-0-11-0-0-0-85-220-0.png/512x512bb.jpg" alt="智生活 App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
-本報告依據 SRTT 與分包截取工具分析**智生活**（`chp.kingnet.ios`）App 的網路請求。此 App 由 **SmaDay Technology Co., Ltd.（今網智慧／智生活）**提供，為**智慧社區生活平台**，功能包含社區公告、包裹與訪客通知、繳費、社群、生活資訊等，涉及**住戶身分與社區居住資料**。
+本報告依據 SRTT 與封包擷取工具分析**智生活**（`chp.kingnet.ios`）App 的網路請求。此 App 由 **SmaDay Technology Co., Ltd.（今網智慧／智生活）**提供，為**智慧社區生活平台**，功能包含社區公告、包裹與訪客通知、繳費、社群、生活資訊等，涉及**住戶身分與社區居住資料**。
 
 本報告有兩項顯著發現：(1) 智生活雖為台灣品牌、處理社區住戶資料，但其**自家後端完全託管於 Google Cloud 公有雲（非台灣自建機房）**；(2) 本 App 整合了**本系列中最龐大的第三方追蹤堆疊**——含 **Microsoft Clarity（行為側錄／session 側錄）**、**Smadex（程式化廣告 DSP）**、Google／Facebook 廣告與分析、Bing、Infobip（英國）簡訊等。
 
@@ -17,10 +17,10 @@ title: 智生活
 | App 名稱 | 智生活 |
 | App 版本 | 4.17.1 |
 | 裝置 | iPhone 16 Pro / iOS 26.5.2 |
-| 擷取時間 | 2026-07-22 |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，見文末補充）** |
 | 涉及網域 | 約 40 個（App 相關；另有 iOS 系統背景已排除） |
 
-> **測試方式與歸屬說明**：本次為功能點選瀏覽之測試。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級之細節不在本次擷取範圍內。因 SRTT／MITM 為**全裝置**抓包，部分廣告／追蹤網域之確切歸屬（App 本體或內嵌內容）建議另以 iOS「App 隱私權報告」佐證。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊。
+> **測試方式與歸屬說明**：本次為功能點選瀏覽之測試。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級之細節不在本次擷取範圍內。因 SRTT／MITM 為**全裝置**擷取，部分廣告／追蹤網域之確切歸屬（App 本體或內嵌內容）建議另以 iOS「App 隱私權報告」佐證。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊。
 
 ---
 
@@ -175,4 +175,27 @@ App 啟動 / 登入
 
 更值得注意的是，本 App 整合了**本系列迄今最龐大、最高強度的第三方追蹤堆疊**：**Microsoft Clarity 的 session 行為側錄**（可重播使用者操作）、**Smadex 程式化廣告 DSP**、Google／Bing／Facebook 之廣告與分析，以及 Infobip（英國）簡訊。對一款承載社區住戶資料的生活平台而言，此追蹤範圍相當可觀。
 
-> **隱私風險評估**：智生活的風險輪廓與政府 App 相反——它是**台灣品牌、卻將社區住戶資料託管於境外公有雲（Google Cloud），並疊加高強度追蹤**。三項最需留意：(1) **自家後端在 Google 公有雲（美國註冊 IP），住戶／社區資料屬雲端託管與出境**；(2) **Microsoft Clarity 的 session 側錄**屬較強之行為追蹤；(3) **Smadex 等程式化廣告與 Google／Meta／Bing 追蹤**範圍廣泛。惟本次為全裝置抓包、未登入、無 HTTP 內容，個別追蹤之確切歸屬與傳輸內容尚無法逐一確認；建議以 iOS「App 隱私權報告」按 App 檢視，並針對登入與社區功能加測 HTTP 明細，以完整評估住戶資料之實際傳輸範圍。
+> **隱私風險評估**：智生活的風險輪廓與政府 App 相反——它是**台灣品牌、卻將社區住戶資料託管於境外公有雲（Google Cloud），並疊加高強度追蹤**。三項最需留意：(1) **自家後端在 Google 公有雲（美國註冊 IP），住戶／社區資料屬雲端託管與出境**；(2) **Microsoft Clarity 的 session 側錄**屬較強之行為追蹤；(3) **Smadex 等程式化廣告與 Google／Meta／Bing 追蹤**範圍廣泛。惟本次為全裝置擷取、未登入、無 HTTP 內容，個別追蹤之確切歸屬與傳輸內容尚無法逐一確認；建議以 iOS「App 隱私權報告」按 App 檢視，並針對登入與社區功能加測 HTTP 明細，以完整評估住戶資料之實際傳輸範圍。
+
+---
+
+## 複測補充（2026-07-30，raw data）
+
+本次複測共 823 筆、47 個主機，**與其他 App 不同，本次多數流量可解密（GET／POST）**，故能以實際請求佐證。以下據實記錄（僅描述端點與行為，不列個資值）：
+
+**自家後端（確認託管於 Google Cloud，連線 IP 註冊美國）**：
+* `cdn.kingnetsmart.com.tw`（142）→ `35.186.228.122`（GCP）；`ecs.kingnetsmart.com.tw`（78，含 OPTIONS）、`api.smartdaily.com.tw`（82，含 24 POST／1 PUT）、`www.smartdaily.com.tw`、`www.dailypro.com.tw`、`chatapi/inapp/vip-subscription/notification.kingnetsmart.com.tw` → `34.49.98.62`／`34.x`／`35.x`（**Google Cloud**）。
+* **Firebase 即時資料庫**：`s-gke-usc1-nssi2-39.firebaseio.com`（115，GET）、`smartlife-3d231.firebaseio.com` → GKE **us-central1（美國中部）**；另 `firebaseremoteconfig`、`fcmtoken.googleapis.com`、`storage.googleapis.com`。
+* **唯一台灣境內**：`img.smartdaily.com.tw` → `59.125.4.147`（HiNet 台灣）；`images.smartdaily.com.tw` 則仍在 GCP（`34.102.241.63`）。
+
+**高強度第三方追蹤（本次以 POST 實證，非僅域名）**：
+* **Microsoft Clarity（session 行為側錄）**：`k.clarity.ms`（**31 筆、27 POST**）→ Azure（荷蘭 `172.175.38.6`）；另 `c/scripts/www.clarity.ms`。**確認為活躍、持續回傳之側錄**。
+* **Sentry（監控）**：`o4504591611002880.ingest.sentry.io`（**24 筆、23 POST**）。
+* **Infobip（簡訊／訊息，歐盟）**：`mobile.infobip.com`（**26 筆、23 POST**）→ `62.140.31.164`（Infobip，RIPE／歐盟）。
+* **Google 分析**：`analytics.google.com`（**18 筆、17 POST**）、`www.googletagmanager.com`、`ep1/ep2.adtrafficquality.google`、`safeframe.googlesyndication.com`。
+* **Smadex（程式化廣告 DSP）**：`static-content-1.smadex.com`、`br-trk.smadex.com`、`creatives.smadex.com`。
+* **Meta**：`graph.facebook.com`（POST）、`connect.facebook.net`。
+* **微軟 Bing**：`c.bing.com`。**Adjust（歸因）**：`view.adjust.com`。
+* 其他：`beagle.pluspay.com.tw`（PlusPay 支付，台灣）、`*.wp.com`（WordPress 內容）、`img.youtube.com`、`appleid.cdn-apple.com`。
+
+**小結**：複測**以實際 POST 請求證實**了初測的兩大結論——(1) **自家後端與住戶即時資料庫（Firebase）託管於 Google Cloud 美國**，僅一個圖片網域在台灣；(2) **疊加本系列最高強度之追蹤**，其中 Microsoft Clarity（27 POST）、Sentry（23 POST）、Infobip（23 POST）、Google Analytics（17 POST）均為**持續、活躍之資料回傳**，非單次探測。

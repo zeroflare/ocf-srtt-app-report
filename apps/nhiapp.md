@@ -8,7 +8,7 @@ title: 健保快易通
 
 <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/c5/ab/8e/c5ab8ed6-7c1a-bcfb-7c0a-0bc64f52ee6c/AppIcon-0-0-1x_U007emarketing-0-11-0-0-85-220.png/512x512bb.jpg" alt="健保快易通 App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
-本報告依據 SRTT 與分包截取工具分析**全民健保行動快易通｜健康存摺**（`tw.gov.nhi.NHIAppPhone`）App 的網路請求。此 App 由**衛生福利部中央健康保險署**提供，是民眾查詢個人健保與醫療資料的主要入口，功能包含**健康存摺**（就醫及用藥紀錄、檢驗檢查結果、健檢報告、照護計畫）、**虛擬健保卡**、**健保櫃檯**、就醫院所查詢、友善就醫查詢等。
+本報告依據 SRTT 與封包擷取工具分析**全民健保行動快易通｜健康存摺**（`tw.gov.nhi.NHIAppPhone`）App 的網路請求。此 App 由**衛生福利部中央健康保險署**提供，是民眾查詢個人健保與醫療資料的主要入口，功能包含**健康存摺**（就醫及用藥紀錄、檢驗檢查結果、健檢報告、照護計畫）、**虛擬健保卡**、**健保櫃檯**、就醫院所查詢、友善就醫查詢等。
 
 此 App 涉及**高度敏感之個人醫療資料**（就醫、用藥、檢驗、健檢紀錄）與**身分驗證**（虛擬健保卡、健保卡註冊、行動電話門號認證），故資料流向與存放位置為本報告重點。
 
@@ -17,22 +17,22 @@ title: 健保快易通
 | App 名稱 | 全民健保行動快易通｜健康存摺（健保快易通） |
 | App 版本 | 3.1.17 |
 | 裝置 | iPhone 16 Pro / iOS 26.5.2 |
-| 擷取時間 | 2026-07-22 |
-| 涉及網域 | 24 個（App 相關；另有 5 個 iOS 系統背景網域已排除） |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，本報告以複測為準）** |
+| 涉及網域 | 初測彙整 24 個；**複測（已登入狀態）觀察到 16 個 App 相關主機**，未再觸發免插卡門號認證鏈（見 §3 說明） |
 
-> **測試方式與資料範圍說明**：本次為「各功能點選瀏覽」之測試，觀察到之請求以頁面／資料載入（GET）為主，未逐一走完寫入型流程。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級（method／path／請求參數／個資欄位／加密方式）之細節不在本次擷取範圍內。部分身分認證與健保署子網域僅出現於 Stream 截取清單、未出現在 SRTT DNS 結果，已另以 DNS／traceroute 補齊其 IP 與 ASN（均為台灣政府／電信／憑證機構）。
+> **測試方式與資料範圍說明**：複測在**已完成健保卡註冊／登入**的狀態下進行，實際操作健康存摺查詢、通知、虛擬健保卡狀態、就醫院所地圖、健保費繳費頁等功能。與初測不同，複測**確實觀察到大量 POST JSON API 請求**（健康存摺紀錄查詢、虛擬健保卡查詢等），故本報告就這些 API 的**落點與資料流**加以佐證。為保護測試者，內文僅描述**欄位類型與端點**，不列出 token、actid、vHCUniqueID、serviceKey 等實際值。免插卡「門號認證＋TWCA」鏈（§3）因本次已是登入狀態而未再觸發，其內容沿用初測之 DNS／traceroute 結果。
 
 ---
 
 ## 網域分析
 
-以下依**所屬單位／角色**分為六類彙整。iOS 系統層背景網域（Apple 定位／推播／App Store）非 App 業務流量，已於文末另列並排除。
+以下依**所屬單位／角色**分為六類彙整，國家與雲端歸屬以本次 HAR 內**實際連線的 server IP** 為準。iOS 系統層背景網域（Apple 定位／推播／App Store）非 App 業務流量，已於文末另列並排除。
 
 | 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
 |------|----------|------|------|-----|----------|
 | `myhealthbank.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健康存摺（就醫用藥／檢驗紀錄） |
 | `mhbdata2.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健康存摺資料 |
-| `vhc.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 虛擬健保卡（Virtual Health Card） |
+| `vhc.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 虛擬健保卡 |
 | `med.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 醫療／就醫相關服務 |
 | `info.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健保資訊服務 |
 | `cloudicweb.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健保卡網路服務註冊 |
@@ -41,7 +41,7 @@ title: 健保快易通
 | `mnogw.cht.com.tw` | 中華電信（行動） | 台灣 | 否（電信機房） | AS17421 | 行動電話門號認證 |
 | `login2.fetnet.net` | 遠傳電信 | 台灣 | 否（電信機房） | AS9674 | 行動電話門號認證 |
 | `mobileconnect.gtcloud.net.tw` | 關貿網路（代管於數位聯合 Seednet） | 台灣 | 否 | AS7482 | 行動身分識別／門號認證 |
-| `mid.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | 行動身分識別（Mobile ID） |
+| `mid.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | 行動身分識別 |
 | `rootocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 / AS3462 | 憑證狀態查詢（OCSP） |
 | `twcasslocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 / AS3462 | SSL 憑證狀態查詢（OCSP） |
 | `wmts.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | 台灣 | 否（政府機房） | AS7539 | 就醫院所地圖圖磚 |
@@ -53,6 +53,8 @@ title: 健保快易通
 | `fcmtoken.googleapis.com` | Google（FCM） | 台灣（節點） | 是 | AS15169 | 推播 Token |
 | `device-provisioning.googleapis.com` | Google（FCM） | 台灣（節點） | 是 | AS15169 | 推播裝置註冊 |
 | `www.google.com` | Google | 台灣（節點） | 是 | AS15169 | Google 一般服務 |
+| `challenges.cloudflare.com` | Cloudflare（Turnstile） | 台灣（節點） | 是（Cloudflare） | AS13335 | 公開網站人機驗證（bot 挑戰） |
+| `www.jkos.com` | 街口網絡（台灣電信網路 TTN 代管） | 台灣 | 否 | AS係TTN | 健保費線上繳費（街口支付選項） |
 
 > **國家判定說明**：健保署所有 `*.nhi.gov.tw` 服務網域（含 `myhealthbank`、`mhbdata2`、`vhc`、`med`、`info`、`cloudicweb`、`etask`）解析至 `210.69.215.x`，ASN **AS4782（GSN，政府服務網路）**，為政府實體機房，資料留在台灣境內。身分認證鏈之網域經 DNS／traceroute 確認，均為**台灣境內**電信與憑證機構：中華電信行動（`mnogw.cht.com.tw`，AS17421）、遠傳（`login2.fetnet.net`，AS9674）、關貿網路（`mobileconnect.gtcloud.net.tw`，代管於數位聯合 Seednet AS7482）、臺灣網路認證 TWCA（`mid`／`rootocsp`／`twcasslocsp.twca.com.tw`，AS9924／AS3462）。`www.nhi.gov.tw`（公開網站）與 `api.tgos.tw`（地圖 API）分別由 **Cloudflare（AS13335）**與 **Google Cloud（AS396982）**承載，採 Anycast，連線節點判定位於台灣，但**營運商為海外雲端**，出境記「可能」。Google 分析與推播服務（AS15169）同屬海外雲端。
 
@@ -63,6 +65,13 @@ title: 健保快易通
 * **基礎設施**：非公有雲，政府服務網路（GSN）機房
 * **角色**：App 核心後端，承載**健康存摺**（就醫及用藥紀錄、檢驗檢查結果、成人預防保健／癌症篩檢／健檢報告）、**虛擬健保卡**、照護計畫等
 * **資料特性**：涉及**高度敏感之個人醫療資料**（就醫、處方用藥、檢驗數值、健檢結果、投保與身分資訊）。此類最敏感資料**均留在台灣政府網路（GSN）範圍內，未經公有雲、未出境**
+* **本次實測 API 佐證**：複測觀察到健康存摺相關功能以 **POST JSON** 向 GSN 主機請求資料，均落在 `210.69.215.x`（台灣）：
+  * 健康存摺就醫紀錄查詢：`POST myhealthbank.nhi.gov.tw/api/ihke3000/...`，請求體含**查詢起訖日期／紀錄類別**等條件（例：`{"REC_TYPE","StartDate","EndDate"}`）
+  * 健康存摺資料與通知：`POST mhbdata2.nhi.gov.tw/API/...`（`app_authstate`、`getPersonalNotification`、`bindingFcmtoken` 等）
+  * 虛擬健保卡狀態：`POST vhc.nhi.gov.tw/TanzuVhcApi/...`，以 **vHCUniqueID**（虛擬卡識別碼）查詢申辦與綁定狀態
+  * 健保卡註冊：`POST cloudicweb.nhi.gov.tw/nhiapp/service/...`
+  * 驗證機制：以 App 內建 **serviceKey** 搭配**每次登入取得之動態 token／actid** 驗證身分（本報告不揭露其實際值）
+  * **重點：上述所有含個資／識別碼之 POST 均送往健保署 GSN（台灣），未出境。**
 * **DNS 解析結果**（A Record）：
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
@@ -84,6 +93,7 @@ AS4782 為 GSN（政府服務網路）。`cloudicweb.nhi.gov.tw`（健保卡網�
 * **基礎設施**：Cloudflare 公有雲 CDN
 * **角色**：載入健保署公開資訊頁面（消息、宣導等）
 * **資料特性**：公開資訊網站，**不涉個人醫療資料**（個人資料走 §1 之 GSN 網域）；惟公開網站由海外 CDN 承載一節值得留意
+* **本次實測補充**：複測觀察到 `www.nhi.gov.tw` 觸發 **Cloudflare Turnstile 人機驗證**（`/cdn-cgi/challenge-platform/`、`challenges.cloudflare.com`、`brunhild.challenges.cloudflare.com`），確認公開網站確由 Cloudflare（AS13335，美國公司）前置防護；此挑戰流量傳送裝置指紋等資訊至 Cloudflare，屬海外雲端。
 * **DNS 解析結果**：
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
@@ -94,11 +104,13 @@ AS13335 為 Cloudflare, Inc.。
 
 ### 3. 身分認證鏈：電信門號 + 憑證（台灣電信／CA，非公有雲）
 
+> **本次複測說明**：因複測時裝置已完成健保卡註冊／登入，**未再觸發**下列免插卡門號認證鏈，故本節網域未出現於 2026-07-30 之 HAR；以下內容沿用初測之 DNS／traceroute 佐證，仍代表首次註冊／換機時之身分驗證路徑。
+
 * **域名性質**：虛擬健保卡與健康存摺之**免插卡身分驗證**，透過「行動電話門號認證」與「行動身分識別」完成，涉及電信業者與憑證機構
 * **組成**：
   * `mnogw.cht.com.tw`（中華電信）、`login2.fetnet.net`（遠傳電信）— **電信門號快速認證**（以 SIM／門號確認持有人身分）
   * `mobileconnect.gtcloud.net.tw`（關貿網路）— 行動身分識別／門號認證中介
-  * `mid.twca.com.tw`（臺灣網路認證 TWCA）— 行動身分識別（Mobile ID）
+  * `mid.twca.com.tw`（臺灣網路認證 TWCA）— 行動身分識別
   * `rootocsp.twca.com.tw`、`twcasslocsp.twca.com.tw`（TWCA）— 憑證狀態即時查詢（OCSP），驗證連線與身分憑證是否有效
 * **地理位置**：網域擁有者均為**台灣**之電信業者（中華電信、遠傳）與憑證機構（TWCA）、加值服務商（關貿網路），推定機房位於台灣境內
 * **基礎設施**：電信／CA 自建機房，非公有雲
@@ -131,7 +143,19 @@ AS17421 為中華電信行動業務；AS9674 為遠傳電信（Far EasTone）；
 | wmts.nlsc.gov.tw | A | 140.110.134.19 | AS7539 | TW |
 | api.tgos.tw | A | 34.160.0.116 | AS396982 | TW |
 
-AS7539 為國網中心（NCHC）；AS396982 為 Google Cloud Platform。
+AS7539 為國網中心（NCHC）；AS396982 為 Google Cloud Platform。`api.tgos.tw` 為本次流量最高之單一主機（288 次），皆連 `34.160.0.116`（Google Cloud），顯示地圖／定位查詢密集依賴此 GCP 承載之政府地圖服務。
+
+### 4b. 健保費線上繳費（街口支付，台灣）
+
+* **域名性質**：健保費繳納頁（`med.nhi.gov.tw/INCE2000`）提供多種線上支付，頁面資源可見 Apple Pay（`pay03APAY`）與街口支付（`pay02jkos`）圖示；選擇街口時外連 `www.jkos.com`
+* **地理位置（本次實際連線 IP）**：`www.jkos.com` → `210.17.80.10`，屬**台灣電信網路服務（TTN，Taiwan Telecommunication Network Services）**機房，國家 **TW**
+* **角色**：健保費線上繳費之第三方支付選項（街口電子支付）
+* **資料特性**：本次僅見 CONNECT（建立連線、未見後續資料）；街口為台灣持牌電子支付機構，主機在台灣境內
+* **DNS／連線 IP**：
+
+| 網域 | 連線 IP | ASN／所屬 | 國家 |
+|------|---------|-----------|------|
+| www.jkos.com | 210.17.80.10 | TTN（台灣電信網路服務） | TW |
 
 ### 5. Google 分析與推播（Firebase／GA／FCM／Tag Manager，海外雲端）
 
@@ -149,6 +173,8 @@ AS7539 為國網中心（NCHC）；AS396982 為 Google Cloud Platform。
 
 AS15169 為 Google LLC。`app-analytics-services.com`、`www.googletagmanager.com`、`fcmtoken.googleapis.com`、`device-provisioning.googleapis.com` 亦屬 Google（AS15169，Anycast，連線節點台灣，營運商海外）。
 
+> **本次複測差異**：2026-07-30 之 HAR 僅觀察到 `www.googletagmanager.com` 與 `app-analytics-services.com`（Firebase 分析）；`www.google-analytics.com`、`firebaselogging-pa`、`fcmtoken`、`device-provisioning.googleapis.com` 本次未再出現（推播 token 綁定改由 `mhbdata2.nhi.gov.tw/API/INAE0000/bindingFcmtoken` 於健保署後端處理）。整體 Google 第三方分析之存在與結論不變。
+
 ### 6. iOS 系統背景網域（非 App 業務流量，已排除）
 
 下列為 iOS 系統／推播／App Store 背景流量，與健保快易通功能無關，於分析中排除，僅列出供辨識：`gateway.fe2.apple-dns.net`、`get-bx.g.aaplimg.com`、`gsp-ssl.ls.apple.com`、`gspe19-2-ssl.ls.apple.com`（Apple 定位／服務）、`a1556.dscapi9.akamai.net`（Apple 內容透過 Akamai CDN）。
@@ -157,11 +183,11 @@ AS15169 為 Google LLC。`app-analytics-services.com`、`www.googletagmanager.co
 
 ## API 用途整理
 
-> **說明**：本次為瀏覽式測試，觀察到之請求以頁面／資料載入（GET）為主，故此節依「網域／功能角色」整理，不列具體端點與請求參數。端點層級（含個資欄位、加密方式）之細節，留待後續針對特定功能（如健康存摺查詢、虛擬健保卡簽發）加測時補充。
+> **說明**：複測在已登入狀態下實際操作各功能，觀察到大量 **POST JSON API** 請求。此節就觀察到之端點與功能角色整理；為保護測試者，僅描述欄位類型，不列 token／actid／vHCUniqueID／serviceKey 等實際值。
 
 ### 一、健康存摺與虛擬健保卡（`*.nhi.gov.tw`）
 
-「健康存摺」之就醫及用藥紀錄、就醫總覽、檢驗檢查結果（血糖／血脂／影像病理）、健康檢查報告等，向健保署 `myhealthbank.nhi.gov.tw`／`mhbdata2.nhi.gov.tw` 取得；「虛擬健保卡」走 `vhc.nhi.gov.tw`；健保卡網路服務註冊走 `cloudicweb.nhi.gov.tw`。此類為核心敏感資料，走台灣政府 GSN 網路，不出境。
+「健康存摺」之就醫及用藥紀錄、就醫總覽、檢驗檢查結果（血糖／血脂／影像病理）、健康檢查報告等，以 **POST JSON**（含查詢起訖日期、紀錄類別等條件）向健保署 `myhealthbank.nhi.gov.tw`／`mhbdata2.nhi.gov.tw` 取得；「虛擬健保卡」以 vHCUniqueID 查詢 `vhc.nhi.gov.tw`；健保卡網路服務註冊走 `cloudicweb.nhi.gov.tw`；健保費繳費頁走 `med.nhi.gov.tw`。此類為核心敏感資料，**經複測確認皆走台灣政府 GSN 網路（`210.69.215.x`），不出境**。
 
 ### 二、身分認證（電信門號 + TWCA 憑證）
 
@@ -182,22 +208,25 @@ App 內嵌 Google Analytics／Firebase／Tag Manager 收集使用行為，並透
 ```
 App 啟動 / 進入首頁
   ├─→ 載入公開網站內容                  (www.nhi.gov.tw ← Cloudflare)
-  ├─→ Google Analytics / Firebase / TagManager  (google-analytics, firebaselogging, googletagmanager)
-  └─→ FCM 推播註冊                      (fcmtoken / device-provisioning.googleapis.com)
+  ├─→ Cloudflare Turnstile 人機驗證     (challenges.cloudflare.com ← 傳裝置指紋)
+  └─→ Google TagManager / Firebase 分析 (googletagmanager, app-analytics-services)
 
-登入 / 身分驗證（免插卡）
+登入 / 身分驗證（免插卡；首次註冊／換機時，本次已登入未觸發）
   ├─→ 行動電話門號認證                  (mnogw.cht.com.tw / login2.fetnet.net)
   ├─→ 行動身分識別                      (mobileconnect.gtcloud.net.tw / mid.twca.com.tw)
   └─→ 憑證狀態查詢 (OCSP)               (rootocsp / twcasslocsp.twca.com.tw)
 
-使用者查詢健康資料（核心，台灣 GSN）⭐
-  ├─ 健康存摺（就醫用藥／檢驗／健檢）→   (myhealthbank / mhbdata2.nhi.gov.tw)
-  ├─ 虛擬健保卡 →                        (vhc.nhi.gov.tw)
+使用者查詢健康資料（核心，POST JSON → 台灣 GSN 210.69.215.x）⭐
+  ├─ 健康存摺（就醫用藥／檢驗／健檢，含查詢日期）→ (myhealthbank / mhbdata2.nhi.gov.tw)
+  ├─ 虛擬健保卡（以 vHCUniqueID 查狀態）→ (vhc.nhi.gov.tw)
   ├─ 健保卡網路服務註冊 →                (cloudicweb.nhi.gov.tw)
   └─ 醫療／健保資訊 →                    (med / info.nhi.gov.tw)
 
-就醫院所查詢（地圖）
+就醫院所查詢（地圖，本次流量最高）
   └─→ 地圖圖磚 + 定位 API               (wmts.nlsc.gov.tw / api.tgos.tw ← Google Cloud)
+
+健保費線上繳費
+  └─→ 街口支付選項                       (www.jkos.com ← 台灣 TTN)
 ```
 
 ---
@@ -206,15 +235,16 @@ App 啟動 / 進入首頁
 
 | 分類 | 網域 | 是否核心功能 | 連線節點 | 資料是否出境 |
 |------|------|--------------|----------|--------------|
-| 健康存摺／虛擬健保卡（敏感） | `*.nhi.gov.tw`（GSN） | 是 | 台灣（GSN） | 否 |
-| 健保署公開網站 | `www.nhi.gov.tw` | 否 | 台灣（Cloudflare 節點） | 可能（Cloudflare 海外營運） |
-| 身分認證（電信／TWCA） | `cht.com.tw`／`fetnet.net`／`gtcloud.net.tw`／`twca.com.tw` | 是（輔助） | 台灣 | 否 |
+| 健康存摺／虛擬健保卡（敏感，POST JSON） | `*.nhi.gov.tw`（GSN，`210.69.215.x`） | 是 | 台灣（GSN） | **否（複測確認）** |
+| 健保署公開網站＋人機驗證 | `www.nhi.gov.tw`、`challenges.cloudflare.com` | 否 | 台灣（Cloudflare 節點） | 可能（Cloudflare 海外營運） |
+| 身分認證（電信／TWCA） | `cht.com.tw`／`fetnet.net`／`gtcloud.net.tw`／`twca.com.tw` | 是（輔助） | 台灣 | 否（＊本次已登入未再觸發） |
 | 地圖服務 | `wmts.nlsc.gov.tw` | 是（輔助） | 台灣 | 否 |
-| 地圖 API | `api.tgos.tw` | 是（輔助） | 台灣（Google Cloud 節點） | 可能（Google 海外營運） |
-| Google 分析／推播 | `google-analytics`／`googleapis`／`googletagmanager` 等 | 否 | 台灣（Google Anycast） | 可能（Google 海外營運） |
+| 地圖 API（流量最高） | `api.tgos.tw` | 是（輔助） | 台灣（Google Cloud 節點） | 可能（Google 海外營運） |
+| 健保費繳費（街口） | `www.jkos.com` | 否 | 台灣（TTN） | 否 |
+| Google 分析 | `googletagmanager`／`app-analytics-services` 等 | 否 | 台灣（Google Anycast） | 可能（Google 海外營運） |
 
-健保快易通是本系列迄今**最敏感**之 App，惟其**核心健康資料（健康存摺之就醫、用藥、檢驗、健檢紀錄與虛擬健保卡）完全走健保署自建之 `*.nhi.gov.tw`（台灣 GSN，AS4782），未經公有雲、未出境**，資料保護設計良好。免插卡身分驗證透過台灣電信（中華電信、遠傳）門號認證與 TWCA 憑證機構完成，亦為境內機構。
+健保快易通是本系列迄今**最敏感**之 App。複測在已登入狀態下實際操作各功能，**確認健康存摺（就醫、用藥、檢驗、健檢紀錄）與虛擬健保卡查詢皆以 POST JSON 送往健保署自建之 `*.nhi.gov.tw`（台灣 GSN，`210.69.215.x`，AS4782），未經公有雲、未出境**——這是對民眾最重要的正面實證。健保費線上繳費之街口支付（`www.jkos.com`）主機亦在台灣。免插卡身分驗證（門號認證＋TWCA）本次因已登入而未再觸發，其境內機構結論沿用初測。
 
-需留意者有三：(1) **公開網站 `www.nhi.gov.tw` 由 Cloudflare（海外雲端）承載**——雖不涉個人醫療資料，但政府網站託管於海外 CDN 一節可再確認；(2) **就醫院所地圖 `api.tgos.tw` 主機位於 Google Cloud**，屬海外雲端節點；(3) App 內嵌 **Google Analytics／Firebase／Tag Manager 使用分析與 FCM 推播**，會將使用行為與裝置識別傳送至 Google 海外，對一款承載全民醫療資料的政府 App 而言，第三方分析之必要性與範圍值得檢視。
+需留意者有三：(1) **公開網站 `www.nhi.gov.tw` 由 Cloudflare（海外雲端）承載**，複測並觀察到 **Cloudflare Turnstile 人機驗證**（會傳送裝置指紋至 Cloudflare）——雖不涉個人醫療資料，但政府網站託管於海外 CDN 一節可再確認；(2) **就醫院所地圖 `api.tgos.tw` 主機位於 Google Cloud**，且為本次流量最高之單一主機，屬海外雲端節點；(3) App 內嵌 **Google Tag Manager／Firebase 使用分析**，會將使用行為與裝置識別傳送至 Google 海外，對一款承載全民醫療資料的政府 App 而言，第三方分析之必要性與範圍值得檢視。
 
 > **隱私風險評估**：最敏感之醫療與身分資料留在台灣政府網路，風險低，設計符合期待。整體風險集中於「非核心」的公開網站 CDN、地圖 API 與 Google 分析／推播等海外雲端服務——這些不涉健康存摺內容，但仍會傳送使用行為與裝置資訊至境外第三方。本次為瀏覽式測試，實際查詢健康存摺／簽發虛擬健保卡時之個資傳輸內容與加密方式，建議後續針對單一功能加測 HTTP 明細以完整評估。

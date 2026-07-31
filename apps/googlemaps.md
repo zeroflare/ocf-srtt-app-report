@@ -8,7 +8,7 @@ title: Google 地圖
 
 <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/f7/b9/65/f7b965a9-44c6-4b9e-98b8-64112f6a9e7e/maps_2025-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-0-0-85-220.png/512x512bb.jpg" alt="Google 地圖 App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
 
-本報告依據 SRTT 與分包截取工具分析 **Google 地圖**（`com.google.Maps`）App 的網路請求。此 App 由 **Google LLC（美國）**提供，為全球主流地圖與導航服務，功能包含地圖瀏覽、路線導航、街景、地點搜尋與評論、位置分享與時間軸（位置記錄）等。
+本報告依據 SRTT 與封包擷取工具分析 **Google 地圖**（`com.google.Maps`）App 的網路請求。此 App 由 **Google LLC（美國）**提供，為全球主流地圖與導航服務，功能包含地圖瀏覽、路線導航、街景、地點搜尋與評論、位置分享與時間軸（位置記錄）等。
 
 **與外商通訊 App（如 LINE）性質相近**：Google 地圖為**外商（美國）**服務，其地圖、位置與帳號資料**本即由 Google 處理**——這是使用 Google 服務的**平台本質**。本報告最顯著之特徵是：**幾乎所有流量都指向 Google 自家基礎設施（AS15169），第三方極少**；資料流向單一但高度敏感（涉及位置與位置記錄）。
 
@@ -17,7 +17,7 @@ title: Google 地圖
 | App 名稱 | Google 地圖 |
 | App 版本 | 26.29.1 |
 | 裝置 | iPhone 16 Pro / iOS 26.5.2 |
-| 擷取時間 | 2026-07-22 |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，見文末補充）** |
 | 涉及網域 | 約 33 個（App 相關，幾乎全為 Google；另有 4 個 iOS 系統背景已排除） |
 
 > **測試方式與歸屬說明**：本次為地圖瀏覽與功能點選之測試。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級之細節不在本次擷取範圍內。SRTT 擷取共 200 筆記錄，其中 **172 筆（約 86%）為 Google（AS15169）**，其餘為 iOS App Store 系統背景。SRTT 未擷取到之 Stream 網域，性質相同（均為 `googleapis.com`／`gstatic.com`／`googleusercontent.com`／`googlevideo.com` 等 Google 網域）。
@@ -138,3 +138,15 @@ Google 地圖是**單一營運商（Google，美國）**之外商服務——其
 使用 Google 地圖的本質，是接受**位置、移動軌跡、地點搜尋與帳號資料由 Google（美國）處理**。其中 `locationhistory-pa.googleapis.com`（位置記錄／時間軸）尤其涉及**帳號層級之長期位置軌跡**，為最敏感之資料類型。連線節點雖部分在台灣（Google Anycast），營運商仍為 Google 美國。
 
 > **隱私風險評估**：Google 地圖不存在「第三方資料外流」的複雜問題——它是**單一且集中的資料流向：全部到 Google**。風險本質不在「流向多少第三方」，而在於**使用者是否接受將高度敏感的位置與位置記錄交由外商（Google 美國）長期保存與運用**。此為使用 Google 服務之平台本質，非隱蔽外洩。若在意位置隱私，可於 Google 帳號設定中關閉「位置記錄／時間軸」與廣告個人化。本次為瀏覽式測試，實際傳輸之定位頻率與精度、位置記錄之上傳內容，建議後續加測 HTTP 明細以完整評估。
+
+---
+
+## 複測補充（2026-07-30，raw data）
+
+本次複測共 115 筆、40 個主機，**全程為 CONNECT、內容未解密**（憑證綁定），僅以域名／IP 據實記錄。
+
+**核心確認（全數 Google，AS15169，營運美國）**：`mobilemaps.googleapis.com`、`mobilemaps-pa-gz.googleapis.com`（地圖圖磚）、`streetviewpixels-pa.googleapis.com`（街景）、`feedback-pa`、`notifications-pa`、`peoplestack-pa`、`accountcapabilities-pa.googleapis.com`、`lh3/gz0.googleusercontent.com`、`*.gstatic.com`、`app-analytics-services.com`（分析）、`accounts.google.com`／`oauth2.googleapis.com`／`oauthaccountmanager.googleapis.com`（帳號登入）。
+* **最敏感者**：`locationhistory-pa.googleapis.com`（2 次）——**帳號層級位置記錄／時間軸**，本次仍出現，確認為活躍端點。
+* 另見多個 `*.googlevideo.com`（`rr2/rr4---sn-…`）——地圖內嵌影片／YouTube 串流。
+
+**疑似雜訊／待確認**：本次另見一組 **Meta/Facebook 網域**（`scontent-lax*/ftpe8-*.fbcdn.net`、`api/graph/www.facebook.com`、`rupload.facebook.com`、`*-netseer-ipaddr-assoc.*.fbcdn.net`）。**Google 地圖並不使用 Facebook SDK**，研判為全裝置擷取下**其他 App／系統之背景流量**，非 Google 地圖所發，**標為雜訊、排除**。
