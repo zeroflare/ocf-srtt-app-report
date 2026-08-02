@@ -109,7 +109,16 @@
       text-align: left;
       vertical-align: top;
     }
-    #content th { background: var(--bg); }
+    #content th { background: var(--bg); white-space: nowrap; }
+    #content td.country-non-tw {
+      background: #c62828;
+      color: #fff;
+      font-weight: 600;
+    }
+    #content td.country-non-tw code {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
     #content blockquote {
       margin: 1rem 0;
       padding: 0.5rem 1rem;
@@ -162,22 +171,22 @@
       <div class="nav-group">
         <h2>導覽</h2>
         <a href="#/" data-route="/">首頁</a>
-        <a href="#/SUMMARY" data-route="/SUMMARY">綜合報告</a>
-        <a href="#/HANDBOOK" data-route="/HANDBOOK">分析手冊</a>
+        <a href="#/綜合報告" data-route="/綜合報告">綜合報告</a>
+        <a href="#/分析手冊" data-route="/分析手冊">分析手冊</a>
       </div>
       <div class="nav-group">
         <h2>App 報告</h2>
-        <a href="#/apps/twfido" data-route="/apps/twfido">行動自然人憑證</a>
-        <a href="#/apps/police" data-route="/apps/police">警政服務</a>
-        <a href="#/apps/nhiapp" data-route="/apps/nhiapp">健保快易通</a>
-        <a href="#/apps/post" data-route="/apps/post">郵局</a>
-        <a href="#/apps/tra" data-route="/apps/tra">台鐵e訂通</a>
-        <a href="#/apps/taiwanpay" data-route="/apps/taiwanpay">台灣Pay</a>
-        <a href="#/apps/line" data-route="/apps/line">LINE</a>
-        <a href="#/apps/googlemaps" data-route="/apps/googlemaps">Google 地圖</a>
-        <a href="#/apps/shopee" data-route="/apps/shopee">蝦皮購物</a>
-        <a href="#/apps/chatgpt" data-route="/apps/chatgpt">ChatGPT</a>
-        <a href="#/apps/ihome" data-route="/apps/ihome">智生活</a>
+        <a href="#/apps/行動自然人憑證" data-route="/apps/行動自然人憑證">行動自然人憑證</a>
+        <a href="#/apps/警政服務" data-route="/apps/警政服務">警政服務</a>
+        <a href="#/apps/健保快易通" data-route="/apps/健保快易通">健保快易通</a>
+        <a href="#/apps/郵局" data-route="/apps/郵局">郵局</a>
+        <a href="#/apps/台鐵e訂通" data-route="/apps/台鐵e訂通">台鐵e訂通</a>
+        <a href="#/apps/台灣Pay" data-route="/apps/台灣Pay">台灣Pay</a>
+        <a href="#/apps/LINE" data-route="/apps/LINE">LINE</a>
+        <a href="#/apps/Google地圖" data-route="/apps/Google地圖">Google 地圖</a>
+        <a href="#/apps/蝦皮購物" data-route="/apps/蝦皮購物">蝦皮購物</a>
+        <a href="#/apps/ChatGPT" data-route="/apps/ChatGPT">ChatGPT</a>
+        <a href="#/apps/智生活" data-route="/apps/智生活">智生活</a>
       </div>
     </aside>
 
@@ -193,19 +202,19 @@
   <script>
     const TITLES = {
       '/': '首頁',
-      '/SUMMARY': '綜合報告',
-      '/HANDBOOK': '分析手冊',
-      '/apps/twfido': '行動自然人憑證',
-      '/apps/police': '警政服務',
-      '/apps/nhiapp': '健保快易通',
-      '/apps/post': '郵局',
-      '/apps/tra': '台鐵e訂通',
-      '/apps/taiwanpay': '台灣Pay',
-      '/apps/line': 'LINE',
-      '/apps/googlemaps': 'Google 地圖',
-      '/apps/shopee': '蝦皮購物',
-      '/apps/chatgpt': 'ChatGPT',
-      '/apps/ihome': '智生活',
+      '/綜合報告': '綜合報告',
+      '/分析手冊': '分析手冊',
+      '/apps/行動自然人憑證': '行動自然人憑證',
+      '/apps/警政服務': '警政服務',
+      '/apps/健保快易通': '健保快易通',
+      '/apps/郵局': '郵局',
+      '/apps/台鐵e訂通': '台鐵e訂通',
+      '/apps/台灣Pay': '台灣Pay',
+      '/apps/LINE': 'LINE',
+      '/apps/Google地圖': 'Google 地圖',
+      '/apps/蝦皮購物': '蝦皮購物',
+      '/apps/ChatGPT': 'ChatGPT',
+      '/apps/智生活': '智生活',
     };
 
     function stripFrontMatter(text) {
@@ -217,6 +226,7 @@
 
     function routeFromHash() {
       let hash = location.hash.replace(/^#/, '') || '/';
+      try { hash = decodeURIComponent(hash); } catch (_) {}
       if (!hash.startsWith('/')) hash = '/' + hash;
       hash = hash.replace(/\/$/, '') || '/';
       hash = hash.replace(/\.md$/i, '').replace(/\.html$/i, '');
@@ -260,6 +270,42 @@
       });
     }
 
+    /** 表格「國家／節點國家／連線節點／核心資料落點」欄：非純台灣則紅底白字 */
+    function highlightNonTaiwanCountries(container) {
+      const headerOk = (h) => /國家|連線節點|核心資料落點/.test(h);
+      const foreignRe = /美國|日本|新加坡|韓國|德國|香港|中國|英國|澳洲|法國|荷蘭|星／中/;
+      const isTaiwanOnly = (text) => {
+        const t = text.replace(/\s+/g, ' ').trim();
+        if (!t || t === '—' || t === '-') return true;
+        // 含其他國家／地區 → 非純台灣（含「台灣／美國」等混合）
+        if (foreignRe.test(t)) return false;
+        // 明確為台灣（含 Anycast／電信等註記）
+        if (/台灣/.test(t)) return true;
+        // 國家欄卻無「台灣」字樣 → 視為非台灣
+        return false;
+      };
+
+      container.querySelectorAll('table').forEach((table) => {
+        const headerCells = table.querySelectorAll('tr:first-child th, tr:first-child td');
+        if (!headerCells.length) return;
+        const idxs = [];
+        headerCells.forEach((th, i) => {
+          if (headerOk(th.textContent || '')) idxs.push(i);
+        });
+        if (!idxs.length) return;
+        table.querySelectorAll('tr').forEach((tr, rowIdx) => {
+          if (rowIdx === 0) return;
+          const cells = tr.querySelectorAll('td, th');
+          idxs.forEach((i) => {
+            const cell = cells[i];
+            if (!cell) return;
+            const text = cell.textContent || '';
+            if (!isTaiwanOnly(text)) cell.classList.add('country-non-tw');
+          });
+        });
+      });
+    }
+
     function setActiveNav(route) {
       document.querySelectorAll('.sidebar a[data-route]').forEach((a) => {
         a.classList.toggle('active', a.getAttribute('data-route') === route);
@@ -277,7 +323,7 @@
       el.textContent = '載入中…';
 
       try {
-        const res = await fetch(file, { cache: 'no-cache' });
+        const res = await fetch(encodeURI(file), { cache: 'no-cache' });
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         let md = stripFrontMatter(await res.text());
         el.className = '';
@@ -288,6 +334,7 @@
         html += marked.parse(md);
         el.innerHTML = html;
         rewriteLinks(el, route);
+        highlightNonTaiwanCountries(el);
         window.scrollTo(0, 0);
       } catch (err) {
         el.className = 'status error';

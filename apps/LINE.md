@@ -1,0 +1,259 @@
+---
+title: LINE
+---
+
+# LINE App 網路流量分析報告
+
+## 概述
+
+<img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/3d/1c/a8/3d1ca800-855b-c093-0f19-038316458142/basic_default-0-0-1x_U007epad-0-6-0-0-sRGB-0-85-220.png/512x512bb.jpg" alt="LINE App 圖示" width="150" height="150" style="border-radius: 22%; object-fit: cover; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);">
+
+本報告依據 SRTT 與封包擷取工具分析 **LINE**（`jp.naver.line`）App 的網路請求。此 App 由 **LY Corporation（日本，LINE 與 Yahoo! JAPAN 合併後之營運公司，母集團為 SoftBank／Naver）**提供，是一款整合即時通訊、社群（VOOM 短影音）、新聞（LINE Today）、貼圖商店、購物（LINE Shopping）、支付與銀行（LINE Pay／LINE Bank）、票券發票、音樂、旅遊、點數等眾多服務之**超級 App**。
+
+**與前幾款台灣政府／金融 App 本質不同**：LINE 為**外商（日本）**服務，其核心通訊與社群資料**本即由日本公司處理**，跨境傳輸至日本屬平台本質、而非隱蔽外洩。本報告聚焦於各服務之資料流向、CDN 節點分布，以及所整合之第三方廣告與追蹤生態。
+
+| 項目 | 內容 |
+|------|------|
+| App 名稱 | LINE |
+| App 版本 | 26.10.0 |
+| 裝置 | iPhone 16 Pro / iOS 26.5.2 |
+| 擷取時間 | 2026-07-22（初測）／**2026-07-30（複測，見文末補充）** |
+| 涉及網域 | 約 80 個（初測）；複測觀察到 80 個主機（含 LINE 各服務、CDN 與第三方廣告／追蹤） |
+
+> **測試方式與歸屬說明**：本次操作涵蓋貼圖、新聞（Today）、短影音（VOOM）、LINE Bank 等功能。本報告以**網域與資料流向**為分析主軸；HTTP 端點層級（method／path／個資欄位／加密方式）之細節不在本次擷取範圍內。因 SRTT／MITM 為**全裝置**擷取，且 LINE 為整合眾多服務與第三方 SDK 之超級 App，個別廣告／追蹤網域之確切歸屬（LINE 本體或內嵌內容）建議另以 iOS「App 隱私權報告」佐證；本報告就觀察到之網域與流向據實記錄。SRTT 未擷取到之 Stream 網域，已另以 DNS／Cymru 補齊 IP 與 ASN。網域數量龐大，以下依角色分組並列舉代表網域。
+
+---
+
+## 網域分析
+
+依**所屬服務／角色**分為七類。各類列舉代表網域及其節點所在。
+
+| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | Anycast | 用途 |
+|------|------|------|------|------|------|------|
+| LINE 核心平台 | `legy.line-apps.com`、`api.line.me`、`access.line.me`、`notice.line.me` | LY Corporation（日本） | 日本／台灣 | AS38631（LINE） / AS16625（Akamai） / AS20940（Akamai） | ✓ | 通訊傳輸、API、登入、通知 |
+| LINE 內容服務 | `today.line.me`、`stickershop.line.me`、`buy.line.me`、`points.line.me`、`music-tw.line.me`、`travel.line.me`、`invoice.line.me` | LY Corporation | 台灣／日本 | AS38631（LINE） / AS16625（Akamai） / AS20940（Akamai） | ✓ | Today 新聞、貼圖、購物、點數、音樂、旅遊、發票 |
+| LINE 靜態 CDN | `obs`／`today-obs`／`buy-obs`／`voom-obs`／`shopping`／`profile`／`stickershop.line-scdn.net` | LINE（Akamai／AWS CloudFront） | 台灣 | AS16625／AS20940（Akamai） / AS16509（AWS） | ✓ | 圖片、貼圖、大頭貼等靜態資源 |
+| LINE Bank／Pay（台灣金融） | `cwa`／`img.linebank.com.tw`、`line-img.linebank.com.tw`、`tsln.taishinbank.com.tw`、`web-tw-pay.line.me` | 連線商業銀行／台新／LY | 台灣／日本 | AS9924／AS9919／AS131660／AS13335／AS38631 | ✓ | 網銀、支付 |
+| 廣告與追蹤 | Google 廣告、`moloco.com`、`dable.io`、`connect.facebook.net`、`bat.bing.com`、`adjust.com` | Google／Moloco／Dable（韓）／Meta／微軟／Adjust | 台灣／韓國／美國／德國 | AS15169 等 | ✓ | 廣告聯播、內容推薦、轉換追蹤 |
+| 分析／監控／安全 | `firebase`／`google-analytics`、`sentry.io`、`v-key.com` | Google／Sentry／V-Key | 台灣／新加坡 | AS15169／AS396982／AS8075 | ✓ | 分析、錯誤監控、App 安全 SDK |
+| 其他第三方嵌入 | `platform.twitter.com`、`scontent.xx.fbcdn.net`、`linetoday.edh.tw` | Twitter／Meta／聯合報系 | 香港／台灣 | AS54113（Fastly）／AS32934／AS396982 | ✓ | 社群嵌入、新聞內容 |
+
+> **國家判定說明（`mtr --tcp --port 443`，終點 Best &lt; 12 ms → 台灣）**：LINE 原站（`147.92.x`，AS38631）約 **35–40 ms** → **日本**（`legy`、`notice`、`points`、`music-tw`、`travel`、`invoice`、`web-tw-pay`）。經 **Akamai／CloudFront** 之 `api`／`access`／`today`／`stickershop`／`buy.line.me` 與幾乎全部 `*.line-scdn.net` 約 **5–8 ms** → **台灣 Anycast**。LINE Bank／台新在台灣；`line-img.linebank.com.tw` 為 Cloudflare 台灣邊緣（約 5 ms）。第三方：Google／Bing／多數 Firebase／Sentry／Moloco event API 約 5–9 ms → **台灣**；`api.dable.io` 約 88 ms → **韓國（AWS 首爾）**；Dable 靜態經 Akamai 台灣；`cdn-f.adsmoloco.com` 約 150 ms → **美國（Fastly）**；`view.adjust.com`（`185.151.204.50`）→ **德國**；Meta 可回 tpe1／lax3；`platform.twitter.com` 約 28 ms → **香港（Fastly）**。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家（**Best &lt; 12 ms 判台灣**）；Cloudflare、Google、Meta、**Akamai**、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
+
+### 1. LINE 核心平台（LY Corporation，日本）
+
+* **域名性質**：`legy.line-apps.com`（LINE 核心傳輸閘道 LEGY）、`api.line.me`、`access.line.me`（登入）、`lin.ee`（短網址）、`notice.line.me`、`obs-tw.line-apps.com`、`torimochi.line-apps.com` 等
+* **地理位置（mtr 443）**：`legy`／`notice`／`web-tw-pay` → `147.92.x`（AS38631），Best 約 **35–37 ms** → **日本**；`api.line.me`／`access.line.me` 經 **Akamai Anycast**，Best 約 **5–6 ms** → **台灣**
+* **角色**：即時通訊訊息傳輸、帳號登入與驗證、通知、各服務 API 入口
+* **資料特性**：承載通訊與帳號核心資料，**由日本 LY Corporation 處理**（部分入口連線節點為台灣 Akamai 邊緣）
+* **DNS／mtr 結果**（代表值）：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| legy.line-apps.com | 147.92.146.138 | AS38631（LINE） | ~35 ms | 日本 | |
+| web-tw-pay.line.me | 147.92.184.234 | AS38631（LINE） | ~36 ms | 日本 | |
+| notice.line.me | 147.92.191.86 | AS38631（LINE） | ~36 ms | 日本 | |
+| api.line.me | 23.39.61.247 | AS16625（Akamai） | ~5 ms | 台灣 | ✓ |
+| access.line.me | 210.71.227.74 | AS20940（Akamai）→ HiNet | ~6 ms | 台灣 | ✓ |
+
+AS38631 為 LY Corporation（日本）。
+
+### 2. LINE 內容服務（Today／VOOM／貼圖／購物／點數／音樂／旅遊／發票）
+
+* **域名性質**：`today.line.me`（新聞）、`voom-obs.line-scdn.net`（短影音）、`stickershop.line.me`（貼圖）、`buy.line.me`／`shopping.line-scdn.net`（購物）、`points.line.me`（點數）、`music-tw.line.me`（音樂）、`travel.line.me`（旅遊）、`invoice.line.me`（發票）
+* **地理位置（mtr 443）**：`today`／`stickershop`／`buy.line.me` 經 Akamai，Best 約 **5 ms** → **台灣**；`points`／`music-tw`／`travel`／`invoice` → `147.92.x`，Best 約 **36–39 ms** → **日本**
+* **角色**：LINE 超級 App 之各內容與電商服務
+* **資料特性**：瀏覽行為、內容互動；`invoice.line.me`（雲端發票）涉及發票／消費資料
+* **DNS／mtr 結果**（代表值）：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| today.line.me | 23.39.60.37 | AS16625（Akamai） | ~5 ms | 台灣 | ✓ |
+| stickershop.line.me | 23.39.61.163 | AS16625（Akamai） | ~5 ms | 台灣 | ✓ |
+| buy.line.me | 210.71.227.10 | AS20940（Akamai）→ HiNet | ~5 ms | 台灣 | ✓ |
+| points.line.me | 147.92.242.166 | AS38631（LINE） | ~39 ms | 日本 | |
+| music-tw.line.me | 147.92.144.186 | AS38631（LINE） | ~37 ms | 日本 | |
+| travel.line.me | 147.92.184.97 | AS38631（LINE） | ~36 ms | 日本 | |
+| invoice.line.me | 147.92.243.231 | AS38631（LINE） | ~38 ms | 日本 | |
+
+### 3. LINE 靜態 CDN（`line-scdn.net`，Akamai／AWS）
+
+* **域名性質**：`obs.line-scdn.net`、`today-obs`、`shopping.line-scdn.net`、`profile.line-scdn.net`（大頭貼）、`stickershop.line-scdn.net`、`voom-obs`、`buy-obs`、`wcc-image`、`vos.line-scdn.net` 等
+* **地理位置（mtr 443）**：本次所列 CDN 網域 Best 皆約 **5–8 ms** → **台灣**（Akamai 或 CloudFront **`tpe53`**）
+* **角色**：圖片、貼圖、大頭貼、影音縮圖等靜態資源傳遞
+* **資料特性**：靜態內容，不直接涉個資
+* **DNS／mtr 結果**（代表值）：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| obs.line-scdn.net | 23.39.60.157 | AS16625（Akamai） | ~5 ms | 台灣 | ✓ |
+| today-obs.line-scdn.net | 210.61.248.80 | AS20940（Akamai）→ HiNet | ~7 ms | 台灣 | ✓ |
+| voom-obs.line-scdn.net | 210.61.248.80 | AS20940（Akamai）→ HiNet | ~7 ms | 台灣 | ✓ |
+| shopping.line-scdn.net | 23.42.102.227 | AS16625（Akamai） | ~6 ms | 台灣 | ✓ |
+| profile.line-scdn.net | 184.25.121.253 | AS16625（Akamai） | ~5 ms | 台灣 | ✓ |
+| buy-obs.line-scdn.net | 54.192.255.107（CloudFront `tpe53`） | AS16509（AWS） | ~5 ms | 台灣 | ✓ |
+| stickershop.line-scdn.net | 65.9.186.72（CloudFront `tpe53`） | AS16509（AWS） | ~5 ms | 台灣 | ✓ |
+
+### 4. LINE Bank／Pay（台灣金融，境內）⭐
+
+* **域名性質**：`cwa.linebank.com.tw`、`img.linebank.com.tw`、`line-img.linebank.com.tw`（LINE Bank 連線商業銀行）、`tsln.taishinbank.com.tw`（台新銀行）、`web-tw-pay.line.me`
+* **地理位置（mtr 443）**：`cwa`／`img`／`tsln` Best 約 **5–10 ms** → **台灣**（台灣固網／新世紀／HiNet CDN）；`line-img.linebank.com.tw` 經 **Cloudflare**，Best 約 **5 ms** → **台灣**；`web-tw-pay.line.me` 為 AS38631，約 **36 ms** → **日本**（支付相關原站）
+* **角色**：LINE Bank 網路銀行與 LINE Pay 台灣支付
+* **資料特性**：金融與帳戶資料；LINE Bank 為台灣持照銀行（連線商業銀行，台新銀行為主要股東），**金融主機多在台灣境內**
+* **DNS／mtr 結果**：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| cwa.linebank.com.tw | 122.147.229.225 | AS9919（新世紀資通） | ~6 ms | 台灣 | |
+| img.linebank.com.tw | 122.147.229.226 | AS9919（新世紀資通） | ~6 ms | 台灣 | |
+| tsln.taishinbank.com.tw | 203.66.35.5（HiNet CDN） | AS3462（中華電信 HiNet） | ~9 ms | 台灣 | |
+| line-img.linebank.com.tw | 104.18.20.47 | AS13335（Cloudflare） | ~5 ms | 台灣 | ✓ |
+| web-tw-pay.line.me | 147.92.184.234 | AS38631（LINE） | ~36 ms | 日本 | |
+### 5. 廣告與追蹤第三方（Google／Moloco／Dable／Meta／微軟／Adjust）
+
+> **歸屬提醒**：LINE 於 Today 新聞、VOOM、購物等內容場景整合多家廣告與內容推薦服務；此類會傳送瀏覽行為、廣告識別與裝置資訊至海外第三方。
+
+* **Google 廣告**：`ad.doubleclick.net`、`pagead2.googlesyndication.com`、`*.safeframe.googlesyndication.com`、`adservice.google.com`、`www.googleadservices.com`、`stats.g.doubleclick.net`、`imasdk.googleapis.com`、`s0.2mdn.net`、`fundingchoicesmessages.google.com`、`ep1/ep2.adtrafficquality.google`（AS15169，本次 mtr Best 約 **4–7 ms** → **台灣 Anycast**）
+* **Moloco（廣告 DSP）**：`eventfnt-asia.dsp-api.moloco.com`（GCP，Best 約 **8 ms** → **台灣**）、`cdn-f.adsmoloco.com`（Fastly，Best 約 **155 ms** → **美國**）
+* **Dable（內容推薦，韓國）**：`api.dable.io`（**AWS 首爾**，Best 約 **88 ms** → **韓國**）、`static.dable.io`／`images.dable.io`（Akamai → HiNet，**台灣**）
+* **Meta**：`connect.facebook.net`、`www.facebook.com`、`scontent.xx.fbcdn.net`、`star-mini.c10r.facebook.com`（AS32934，Anycast：可回 **`31.13.87.x`（`tpe1`，台灣）** 或 **`57.144.4.x`（`lax3`，美國；本次 `www.facebook.com`→`57.144.4.1`，約 **145 ms**）**）
+* **微軟 Bing**：`bat.bing.com`（AS8075，Best 約 **6 ms** → **台灣**）
+* **Adjust**：`view.adjust.com`（`185.151.204.50`，AS61273，歸因追蹤 → **德國**）
+* **Twitter**：`platform.twitter.com`（Fastly，Best 約 **28 ms** → **香港**）
+* **資料特性**：屬**非核心之廣告與跨站追蹤**，傳送使用行為與識別資訊；營運商多為海外
+* **DNS／mtr 結果**（代表值）：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| ad.doubleclick.net | 142.250.77.198 | AS15169（Google） | ~5 ms | 台灣 | ✓ |
+| www.googleadservices.com | 142.250.198.66 | AS15169（Google） | ~5 ms | 台灣 | ✓ |
+| pagead2.googlesyndication.com | 142.250.77.194 | AS15169（Google） | ~4 ms | 台灣 | ✓ |
+| adservice.google.com | 142.250.196.194 | AS15169（Google） | ~5 ms | 台灣 | ✓ |
+| bat.bing.com | 150.171.27.10 | AS8075（Microsoft） | ~6 ms | 台灣 | ✓ |
+| eventfnt-asia.dsp-api.moloco.com | 107.178.244.18 | AS396982（GCP） | ~8 ms | 台灣 | ✓ |
+| cdn-f.adsmoloco.com | 199.232.199.52 | AS54113（Fastly） | ~155 ms | 美國 | ✓ |
+| api.dable.io | 54.116.161.73 | AS16509（AWS 首爾） | ~88 ms | 韓國 | |
+| static.dable.io／images.dable.io | 203.69.138.x | Akamai → HiNet | ~6 ms† | 台灣 | ✓ |
+| www.facebook.com | 57.144.4.1（lax3）／31.13.87.x（tpe1） | AS32934（Meta） | ~145 ms／~5 ms | 美國／台灣 | ✓ |
+| platform.twitter.com | 151.101.76.157 | AS54113（Fastly） | ~28 ms | 香港 | ✓ |
+| view.adjust.com | 185.151.204.50 | AS61273（Adjust） | — | 德國 | |
+
+† Dable 靜態 CNAME Akamai，邊緣 IP 落 HiNet；本次部分 hop 不穩定，依 PTR／低延遲邊緣判台灣。
+
+### 6. 分析／監控／安全（Firebase、Sentry、V-Key）
+
+* **域名性質**：`firebase.googleapis.com`、`www.google-analytics.com`、`www.googletagmanager.com`（Google 分析）、`ly.my.sentry.io`／`sentry-prem.line-apps.com`（Sentry 錯誤監控）、`1176-ti.cloud.v-key.com`（V-Key 行動安全 SDK）
+* **地理位置（mtr 443）**：Google 分析／Firebase／Tag Manager／`ly.my.sentry.io` Best 約 **5–9 ms** → **台灣**；`1176-ti.cloud.v-key.com` Best 約 **51 ms** → **新加坡**（Azure）
+* **角色**：使用分析、App 當機／錯誤回報、App 完整性／威脅防護（V-Key）
+* **資料特性**：遙測與安全檢測資料；營運商為海外
+* **DNS／mtr 結果**（代表值）：
+
+| 網域 | 連線 IP | ASN | Best | 國家 | Anycast |
+|------|---------|-----|------|------|---------|
+| www.googletagmanager.com | 142.250.77.200 | AS15169（Google） | ~6 ms | 台灣 | ✓ |
+| www.google-analytics.com | 142.250.77.14 | AS15169（Google） | ~5 ms | 台灣 | ✓ |
+| firebase.googleapis.com | 172.217.116.4 | AS15169（Google） | ~5 ms | 台灣 | ✓ |
+| ly.my.sentry.io | 34.111.57.229 | AS396982（GCP） | ~8 ms | 台灣 | ✓ |
+| 1176-ti.cloud.v-key.com | 40.90.184.244 | AS8075（Azure） | ~51 ms | 新加坡 | |
+| linetoday.edh.tw | 34.8.142.227 | AS396982（GCP） | ~8 ms | 台灣 | ✓ |
+
+### 7. iOS 系統背景與泛用 CDN（部分歸屬未定）
+
+SRTT 另擷取到數個 Akamai 泛用對應網域（`e1102.a.akamaiedge.net`、`a274.dscv.akamai.net`、`a1433.d.akamai.net`、`a.line.me.akadns.net` 等），多為 LINE 內容經 Akamai 傳遞之基礎設施；`mpc-prod-…run.app`（Google Cloud Run）、`d1r9h2320m2w6r.cloudfront.net`（AWS）為後端／CDN 端點。此類為傳輸基礎設施，不單獨判定。
+
+---
+
+## API 用途整理
+
+> **說明**：本次為瀏覽式測試，觀察到之請求以頁面／資料載入（GET）為主，故此節依「服務／角色」整理，不列具體端點與請求參數。實際通訊、金融交易之流程未於本次深入觸發。
+
+### 一、通訊與帳號核心（LY Corporation，日本）
+
+即時通訊訊息傳輸經 `legy.line-apps.com`（LEGY 閘道，日本），登入與 API 經 `access.line.me`／`api.line.me`（**Akamai 台灣 Anycast**）。核心通訊與帳號資料由日本 LY Corporation 處理。
+
+### 二、內容與電商（Today／VOOM／貼圖／購物／點數／音樂／旅遊）
+
+各服務入口為 `*.line.me`，靜態資源經 `line-scdn.net`（Akamai／AWS）。新聞內容另有聯合報系 `linetoday.edh.tw`。
+
+### 三、台灣金融（LINE Bank／Pay）
+
+`linebank.com.tw`、`taishinbank.com.tw`、`web-tw-pay.line.me` 承載網路銀行與支付，主機在台灣。
+
+### 四、廣告、追蹤與監控
+
+內容場景整合 Google 廣告、Moloco、Dable（韓）、Meta、Bing、Adjust 等廣告與追蹤，以及 Firebase／Sentry 分析監控、V-Key 安全 SDK。
+
+---
+
+## 請求流程概觀
+
+```
+App 啟動 / 登入
+  ├─→ 核心傳輸閘道 LEGY (legy.line-apps.com ← 日本 LY Corp)
+  ├─→ 登入 / API (access.line.me / api.line.me ← Akamai 台灣 Anycast)
+  └─→ 分析 / 監控 / 安全 (firebase／sentry ← 台灣；v-key ← 新加坡)
+
+各服務
+  ├─ 聊天 / 貼圖 → 原站（日本 ~35 ms）+ 靜態 CDN（台灣 Akamai／CloudFront ~5 ms）
+  ├─ Today 新聞 → Akamai 台灣 (~5 ms) + 聯合報系 (linetoday.edh.tw ← GCP 台灣)
+  ├─ VOOM 短影音 → 影音 OBS (voom-obs.line-scdn.net ← 台灣)
+  ├─ 購物／貼圖入口 → Akamai 台灣；點數／音樂／旅遊／發票原站 → 日本 (~35 ms)
+  └─ LINE Bank / Pay → 台灣金融 (linebank／taishin)；web-tw-pay.line.me → 日本
+
+內容場景內嵌廣告與追蹤（非核心）
+  ├─ Google 廣告 (doubleclick 等 ← 台灣 Anycast ~5 ms)
+  ├─ Moloco (event API ← 台灣；cdn-f ← 美國 ~155 ms)
+  ├─ Dable (api ← 韓國 ~88 ms；靜態 ← 台灣 Akamai)
+  ├─ Meta / Twitter / Bing (Meta tpe1／lax3；Twitter 香港 ~28 ms；Bing 台灣)
+  └─ Adjust 歸因 (view.adjust.com ← 德國)
+```
+
+---
+
+## 摘要
+
+| 分類 | 網域 | 是否核心功能 | 連線節點 | 資料是否出境 |
+|------|------|--------------|----------|--------------|
+| LINE 核心通訊 | `legy`（日本）；`api`／`access.line.me`（Akamai） | 是 | 日本（LEGY，~35 ms）；**台灣**（api／access，~5 ms） | **是（營運日本）** |
+| LINE 內容服務 | `today`／`stickershop`／`buy`；`points`／`music-tw` 等 | 是 | 台灣（Akamai）／日本（AS38631） | 是（營運日本） |
+| LINE 內容 CDN | `line-scdn.net`（含 CloudFront `tpe53`） | 是（輔助） | 台灣（~5–8 ms） | 可能 |
+| LINE Bank／Pay | `linebank.com.tw`、`taishinbank`；`web-tw-pay.line.me` | 是 | 台灣；`web-tw-pay`＝日本 | 否／部分是 |
+| 廣告與追蹤 | Google／Moloco／Dable／Meta／Bing／Adjust | 否 | 多為台灣；Dable API＝韓國；Moloco CDN＝美國；Adjust＝**德國**；Meta＝tpe1／lax3 | 是／可能 |
+| 分析／監控／安全 | Firebase／Sentry／V-Key | 否 | Firebase／Sentry＝台灣；V-Key＝**新加坡**（~51 ms） | 是／可能 |
+
+LINE 是**日本 LY Corporation** 營運之外商超級 App，其**核心通訊與帳號資料本即由日本公司處理**（`AS38631`，日本）——這是使用 LINE 的**平台本質**，而非隱蔽外洩：選擇使用 LINE，即等同將通訊與社群資料交由日本業者處理。內容與靜態資源透過 **Akamai Anycast**／AWS CloudFront（如 `tpe53`）多落於**台灣邊緣**（mtr Best &lt; 12 ms）；部分原站（`147.92.x`）仍直連**日本**（約 35–40 ms）。
+
+**LINE Bank／LINE Pay 之台灣金融服務**（連線商業銀行、台新銀行）主機在**台灣境內**，金融資料受國內監理，此部分與外商通訊服務分屬不同體系。
+
+LINE 作為超級 App 整合了**相當廣泛的第三方廣告與追蹤生態**——Google 廣告全家桶、Moloco 廣告 DSP、**韓國 Dable 內容推薦**、Meta、Bing、Adjust 歸因，以及 Firebase／Sentry 監控與 V-Key 安全 SDK。這些多在 Today 新聞、VOOM、購物等內容場景載入，會將使用行為與識別資訊傳送至海外第三方（連線節點多為台灣 Anycast；Dable API 在韓國、Moloco CDN 在美國、Adjust 在德國）。
+
+> **隱私風險評估**：使用 LINE 的核心前提，是接受**通訊／社群資料由日本業者處理**（平台本質，非漏洞）。相對地，**LINE Bank／Pay 的台灣金融資料留在境內**，受國內監理。較需個別留意者為**廣泛的第三方廣告與跨站追蹤**（含韓國 Dable、多家美國廣告網），其傳送之瀏覽行為與識別資訊範圍較廣。惟本次為**全裝置擷取、未逐一深入各功能、且無 HTTP 內容**，個別廣告／追蹤之確切歸屬與傳輸內容尚無法逐一確認；建議以 iOS「App 隱私權報告」按 App 檢視，並針對特定功能加測 HTTP 明細以完整評估。
+
+---
+
+## 複測補充（2026-07-30，raw data）
+
+本次複測共 1773 筆、80 個主機，操作涵蓋 Today／VOOM／貼圖／購物／LINE Bank。多數 LINE 原站可解密（GET／POST），核心傳輸則為二進位協定（未解密）。以下據實記錄：
+
+**核心確認**：
+* `legy.line-apps.com`（166，多為 POST）→ `147.92.146.129`（LINE Corp／AS38631，**營運日本**，平台本質）；另有 **209 筆無 host 之連線**同樣連 `147.92.x`，研判為 LEGY 二進位傳輸協定（未解密）。
+* `uts-front.line-apps.com`（102，POST）、`a.line.me`（97）、`crs-hometab-event.line.me`、`alloy-gw.line.dev`：LINE 自家遙測／首頁事件。
+* `buy.line.me`（207，本次最高）→ `210.61.248.9`／本次 mtr `210.71.227.10`（**Akamai 台灣 Anycast**，~5 ms）：LINE 購物。
+* 靜態 CDN `*.line-scdn.net`：Akamai／CloudFront（如 `buy-obs`／`stickershop`→**`tpe53` 台灣**），Best 約 5–8 ms。
+
+**本次實際出現之第三方**：
+* **Dable（韓國內容推薦）**：`api.dable.io`（AWS 首爾）、`static.dable.io`、`images.dable.io`。
+* **V-Key（行動安全 SDK）**：`cloud.v-key.com`、`1176-ti.cloud.v-key.com`（Azure **新加坡**）。
+* **Sentry**：`ly.my.sentry.io`（GCP）。
+* **Google**：`analytics.google.com`、`www.googletagmanager.com`、`fundingchoicesmessages.google.com`（同意管理）、`ep2.adtrafficquality.google`。
+* **Meta**：`www.facebook.com`、`connect.facebook.net`（Anycast：可回 **`31.13.87.x`（`tpe1`，台灣；如 `31.13.87.36`）** 或 **`57.144.4.x`（`lax3`，美國；如 `57.144.4.1`）**）。
+* **LINE Tag**：`tr.line.me`、`lap-click.tr.line.me`。
+* **Trip.com（攜程旅遊）**：`ak-s-cw.tripcdn.com`、`tw.trip.com`、`ak-d.tripcdn.com`（**Akamai 台灣 Anycast**，邊緣 IP 可落 HiNet `210.71.227.x`，營運海外）。
+* **Coupang（酷澎）**：`link.tw.coupang.com`（**Akamai 台灣 Anycast**）。
+* 其他：`mpc-prod-…run.app`（Google Cloud Run）、`miniapptw.landpress.line.me`（AWS）、`line-img.linebank.com.tw`（Cloudflare）。
+
+**本次未再出現**（初測曾列，供對照）：Moloco、Bing（`bat.bing.com`）、Adjust（`view.adjust.com`）、Twitter 嵌入。
+
+**疑似雜訊／待確認**：Trip.com、Coupang 於本 App 多見於 Today／購物內容場景，惟全裝置擷取下不排除跨 App；記為待確認。

@@ -30,19 +30,19 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 | 類別 | 代表網域 | 所屬 | 節點國家 | ASN | Anycast | 用途 |
 |------|------|------|------|------|------|------|
-| 地圖核心 | `mobilemaps.googleapis.com`、`mobilemaps-pa-gz.googleapis.com`、`maps.google.com`、`maps.gstatic.com` | Google | TW | AS15169（Google） | ✓ | 地圖圖磚與向量資料 |
-| 位置與記錄 ⚠️ | `locationhistory-pa.googleapis.com`、`streetviewpixels-pa.googleapis.com`、`mapsphotoupload.googleapis.com` | Google | TW | AS15169（Google） | ✓ | 位置記錄（時間軸）、街景、相片上傳 |
-| Google 帳號 | `accounts.google.com`、`oauth2.googleapis.com`、`oauthaccountmanager.googleapis.com`、`people-pa.googleapis.com` | Google | TW | AS15169（Google） | ✓ | 登入、帳號、聯絡人 |
-| 使用者內容／圖片 | `lh3~lh6.googleusercontent.com`、`gz0.googleusercontent.com`、`googlehosted.l.googleusercontent.com` | Google | TW | AS15169（Google） | ✓ | 地點相片、使用者內容 |
-| 影音內容 | `rr*.googlevideo.com`、`manifest.googlevideo.com` | Google | TW | AS15169（Google） | ✓ | 影片內容傳遞 |
-| 服務與遙測 | `growth-pa`、`notifications-pa`、`feedback-pa.googleapis.com`、`play.googleapis.com`、`app-analytics-services.com` | Google | TW | AS15169（Google） | ✓ | 推播、回饋、分析、Play 服務 |
-| 廣告與字型 | `tpc.googlesyndication.com`、`fonts.gstatic.com`、`www.gstatic.com`、`ssl.gstatic.com` | Google | TW | AS15169（Google） | ✓ | Google 廣告、字型與靜態資源 |
+| 地圖核心 | `mobilemaps.googleapis.com`、`mobilemaps-pa-gz.googleapis.com`、`maps.google.com`、`maps.gstatic.com` | Google | 台灣 | AS15169（Google） | ✓ | 地圖圖磚與向量資料 |
+| 位置與記錄 | `locationhistory-pa.googleapis.com`、`streetviewpixels-pa.googleapis.com`、`mapsphotoupload.googleapis.com` | Google | 台灣 | AS15169（Google） | ✓ | 位置記錄（時間軸）、街景、相片上傳 |
+| Google 帳號 | `accounts.google.com`、`oauth2.googleapis.com`、`oauthaccountmanager.googleapis.com`、`people-pa.googleapis.com` | Google | 台灣 | AS15169（Google） | ✓ | 登入、帳號、聯絡人 |
+| 使用者內容／圖片 | `lh3~lh6.googleusercontent.com`、`gz0.googleusercontent.com`、`googlehosted.l.googleusercontent.com` | Google | 台灣 | AS15169（Google） | ✓ | 地點相片、使用者內容 |
+| 影音內容 | `rr*.googlevideo.com`、`manifest.googlevideo.com` | Google | 台灣 | AS15169（Google） | ✓ | 影片內容傳遞 |
+| 服務與遙測 | `growth-pa`、`notifications-pa`、`feedback-pa.googleapis.com`、`play.googleapis.com`、`app-analytics-services.com` | Google | 台灣 | AS15169（Google） | ✓ | 推播、回饋、分析、Play 服務 |
+| 廣告與字型 | `tpc.googlesyndication.com`、`fonts.gstatic.com`、`www.gstatic.com`、`ssl.gstatic.com` | Google | 台灣 | AS15169（Google） | ✓ | Google 廣告、字型與靜態資源 |
 
-> **國家判定說明**：所有上述網域 ASN 均為 **AS15169（Google LLC）**，採 Anycast。本次以 **`mtr --tcp --port 443`** 重測，代表網域終點延遲約 **5–10ms**，判定連線節點為 **TW（Google Anycast）**；SRTT 地理標籤可能顯示美國／澳洲，屬 Anycast 註冊地差異。因營運商為 Google（美國），資料出境記「是（Google 美國）」，屬使用外商服務之本質。
+> **國家判定說明**：所有上述網域 ASN 均為 **AS15169（Google LLC）**，採 Anycast。本次以 **`mtr --tcp --port 443`** 重測，代表網域終點延遲約 **5–10ms**，判定連線節點為 **台灣（Google Anycast）**；SRTT 地理標籤可能顯示美國／澳洲，屬 Anycast 註冊地差異。因營運商為 Google（美國），資料出境記「是（Google 美國）」，屬使用外商服務之本質。
 
-> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、**Akamai**、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
-### 1. 地圖核心與位置資料（Google，美國）⚠️
+### 1. 地圖核心與位置資料（Google，美國）
 
 * **域名性質**：`mobilemaps.googleapis.com`／`mobilemaps-pa-gz.googleapis.com`（行動地圖向量資料）、`maps.google.com`／`maps.gstatic.com`（地圖資源）、`streetviewpixels-pa.googleapis.com`（街景）、**`locationhistory-pa.googleapis.com`（位置記錄／時間軸）**、`mapsphotoupload.googleapis.com`（相片上傳）
 * **地理位置**：AS15169（Google），mtr 443 判定為台灣 Anycast（約 5–10ms）
@@ -52,9 +52,9 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| streetviewpixels-pa.googleapis.com | 216.239.38.135 | AS15169（Google） | TW |
-| locationhistory-pa.googleapis.com | 172.217.117.4 | AS15169（Google） | TW |
-| maps.gstatic.com | 142.250.192.131 | AS15169（Google） | TW（節點） |
+| streetviewpixels-pa.googleapis.com | 216.239.38.135 | AS15169（Google） | 台灣 |
+| locationhistory-pa.googleapis.com | 172.217.117.4 | AS15169（Google） | 台灣 |
+| maps.gstatic.com | 142.250.192.131 | AS15169（Google） | 台灣（節點） |
 
 ### 2. Google 帳號與服務（Google，美國）
 
@@ -65,22 +65,23 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| accounts.google.com | 64.233.188.84 | AS15169（Google） | TW（節點） |
-| oauth2.googleapis.com | 142.251.170.95 | AS15169（Google） | TW（節點） |
-| people-pa.googleapis.com | 172.217.112.4 | AS15169（Google） | TW |
+| accounts.google.com | 64.233.188.84 | AS15169（Google） | 台灣（節點） |
+| oauth2.googleapis.com | 142.251.170.95 | AS15169（Google） | 台灣（節點） |
+| people-pa.googleapis.com | 172.217.112.4 | AS15169（Google） | 台灣 |
 
 ### 3. 內容、影音、廣告與字型（Google，美國）
 
 * **域名性質**：`lh3~lh6.googleusercontent.com`／`gz0.googleusercontent.com`（地點相片與使用者內容）、`rr*.googlevideo.com`／`manifest.googlevideo.com`（影音內容）、`tpc.googlesyndication.com`（Google 廣告）、`fonts.gstatic.com`／`www.gstatic.com`／`ssl.gstatic.com`（字型與靜態資源）
+* **地理位置（mtr 443）**：Google Anycast（AS15169）；`manifest.googlevideo.com` 終點延遲約 5 ms，連線節點判為**台灣**
 * **角色**：地點相片、影片、廣告與靜態資源傳遞
 * **資料特性**：內容傳遞與 Google 自家廣告；營運商均為 Google
-* **DNS 解析結果**（代表值）：
+* **DNS／mtr 結果**（代表值）：
 
-| 網域 | 解析 IP | ASN | 國家 |
-|------|---------|-----|------|
-| lh5.googleusercontent.com | 142.250.204.33 | AS15169（Google） | TW（節點） |
-| manifest.googlevideo.com | 142.250.204.46 | AS15169（Google） | US／TW |
-| tpc.googlesyndication.com | 142.250.77.193 | AS15169（Google） | TW（節點） |
+| 網域 | 連線 IP | ASN | 國家 | Anycast |
+|------|---------|-----|------|---------|
+| lh5.googleusercontent.com | 142.250.204.33 | AS15169（Google） | 台灣 | ✓ |
+| manifest.googlevideo.com | 142.250.204.46 | AS15169（Google） | 台灣 | ✓ |
+| tpc.googlesyndication.com | 142.250.77.193 | AS15169（Google） | 台灣 | ✓ |
 
 ### 4. iOS 系統背景網域（非 App 業務流量，已排除）
 
@@ -110,18 +111,18 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 ```
 App 啟動 / 登入
-  ├─→ Google 帳號登入                   (accounts.google.com, oauth2.googleapis.com)
-  ├─→ 個人資料 / 聯絡人                  (people-pa.googleapis.com)
-  └─→ 服務初始化 / 分析                  (growth-pa, notifications-pa, app-analytics-services)
+  ├─→ Google 帳號登入 (accounts.google.com, oauth2.googleapis.com)
+  ├─→ 個人資料 / 聯絡人 (people-pa.googleapis.com)
+  └─→ 服務初始化 / 分析 (growth-pa, notifications-pa, app-analytics-services)
 
 地圖使用
-  ├─ 地圖瀏覽 / 導航 → 向量資料          (mobilemaps.googleapis.com, maps.gstatic.com)
-  ├─ 街景 →                              (streetviewpixels-pa.googleapis.com)
-  ├─ 位置記錄（時間軸）→ ⚠️              (locationhistory-pa.googleapis.com)
-  ├─ 地點相片 → 上傳 / 檢視              (mapsphotoupload / lh3~6.googleusercontent.com)
-  └─ 影片 / 廣告 →                       (googlevideo.com, tpc.googlesyndication.com)
+  ├─ 地圖瀏覽 / 導航 → 向量資料 (mobilemaps.googleapis.com, maps.gstatic.com)
+  ├─ 街景 → (streetviewpixels-pa.googleapis.com)
+  ├─ 位置記錄（時間軸）→ (locationhistory-pa.googleapis.com)
+  ├─ 地點相片 → 上傳 / 檢視 (mapsphotoupload / lh3~6.googleusercontent.com)
+  └─ 影片 / 廣告 → (googlevideo.com, tpc.googlesyndication.com)
 
-（所有連線之營運商均為 Google，AS15169，節點多在美國）
+（所有連線之營運商均為 Google，AS15169；連線節點多為台灣 Anycast，營運商為 Google 美國）
 ```
 
 ---
@@ -130,14 +131,14 @@ App 啟動 / 登入
 
 | 分類 | 網域 | 是否核心功能 | 連線節點 | 資料是否出境 |
 |------|------|--------------|----------|--------------|
-| 地圖核心與位置 | `mobilemaps`／`streetviewpixels`／`locationhistory-pa` | 是 | 美國／台灣（Google Anycast） | **是（Google 美國）** |
-| Google 帳號 | `accounts.google.com`／`oauth*` | 是 | 美國／台灣 | 是（Google 美國） |
-| 內容／影音／廣告 | `googleusercontent`／`googlevideo`／`googlesyndication` | 否／輔助 | 美國／台灣 | 是（Google 美國） |
-| 字型／靜態 | `gstatic.com` | 否 | 美國／台灣 | 可能 |
+| 地圖核心與位置 | `mobilemaps`／`streetviewpixels`／`locationhistory-pa` | 是 | 台灣（Google Anycast） | **是（Google 美國）** |
+| Google 帳號 | `accounts.google.com`／`oauth*` | 是 | 台灣（Google Anycast） | 是（Google 美國） |
+| 內容／影音／廣告 | `googleusercontent`／`googlevideo`／`googlesyndication` | 否／輔助 | 台灣（Google Anycast） | 是（Google 美國） |
+| 字型／靜態 | `gstatic.com` | 否 | 台灣（Google Anycast） | 可能 |
 
 Google 地圖是**單一營運商（Google，美國）**之外商服務——其最鮮明的特徵是**幾乎所有流量都指向 Google 自家基礎設施（AS15169），第三方極少**（僅見 Google 自家廣告 `googlesyndication`）。這與台灣政府／金融 App 的「多電信＋多第三方」結構截然不同：資料流向極為單一，但**全部交由 Google 處理**。
 
-使用 Google 地圖的本質，是接受**位置、移動軌跡、地點搜尋與帳號資料由 Google（美國）處理**。其中 `locationhistory-pa.googleapis.com`（位置記錄／時間軸）尤其涉及**帳號層級之長期位置軌跡**，為最敏感之資料類型。連線節點雖部分在台灣（Google Anycast），營運商仍為 Google 美國。
+使用 Google 地圖的本質，是接受**位置、移動軌跡、地點搜尋與帳號資料由 Google（美國）處理**。其中 `locationhistory-pa.googleapis.com`（位置記錄／時間軸）尤其涉及**帳號層級之長期位置軌跡**，為最敏感之資料類型。連線節點本次判定為**台灣 Anycast**，營運商仍為 Google 美國。
 
 > **隱私風險評估**：Google 地圖不存在「第三方資料外流」的複雜問題——它是**單一且集中的資料流向：全部到 Google**。風險本質不在「流向多少第三方」，而在於**使用者是否接受將高度敏感的位置與位置記錄交由外商（Google 美國）長期保存與運用**。此為使用 Google 服務之平台本質，非隱蔽外洩。若在意位置隱私，可於 Google 帳號設定中關閉「位置記錄／時間軸」與廣告個人化。本次為瀏覽式測試，實際傳輸之定位頻率與精度、位置記錄之上傳內容，建議後續加測 HTTP 明細以完整評估。
 
@@ -151,4 +152,4 @@ Google 地圖是**單一營運商（Google，美國）**之外商服務——其
 * **最敏感者**：`locationhistory-pa.googleapis.com`（2 次）——**帳號層級位置記錄／時間軸**，本次仍出現，確認為活躍端點。
 * 另見多個 `*.googlevideo.com`（`rr2/rr4---sn-…`）——地圖內嵌影片／YouTube 串流。
 
-**疑似雜訊／待確認**：本次另見一組 **Meta/Facebook 網域**（`scontent-lax*/ftpe8-*.fbcdn.net`、`api/graph/www.facebook.com`、`rupload.facebook.com`、`*-netseer-ipaddr-assoc.*.fbcdn.net`）。**Google 地圖並不使用 Facebook SDK**，研判為全裝置擷取下**其他 App／系統之背景流量**，非 Google 地圖所發，**標為雜訊、排除**。
+**疑似雜訊／待確認**：本次另見一組 **Meta/Facebook 網域**（`scontent-lax*/ftpe8-*.fbcdn.net`、`api/graph/www.facebook.com`、`rupload.facebook.com`、`*-netseer-ipaddr-assoc.*.fbcdn.net`）。**Google 地圖並不使用 Facebook SDK**，研判為全裝置擷取下**其他 App／系統之背景流量**，非 Google 地圖所發，**標為雜訊、排除**。（Meta Anycast 本身亦可回 `31.13.87.x` tpe1／台灣 或 `57.144.4.x` lax3／美國，如 `www.facebook.com`→`31.13.87.36`／`57.144.4.1`。）
