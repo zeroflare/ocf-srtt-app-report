@@ -28,36 +28,38 @@ title: 警政服務
 
 警政服務為整合型 App，涉及網域較多，以下依**所屬單位／角色**分為七類彙整。國家與雲端歸屬以本次 HAR 內**實際連線的 server IP** 為準（較事後 DNS 查詢更貼近當下觀察）。iOS 系統層背景網域非 App 業務流量，已於文末另列並排除；封包擷取工具本身之串流網域（如含 `stream` 者）亦非本 App 流量，一併排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `www.npa.gov.tw` | 內政部警政署 | 台灣 | 否（HiNet CDN） | AS3462 | 警政署官網、各功能 WebView 內容頁 |
-| `www.apb.npa.gov.tw` | 警政署刑事警察局 | 台灣 | 否（HiNet CDN） | AS3462 | 刑事局相關查詢／內容頁 |
-| `165.npa.gov.tw` | 刑事警察局 165 | 台灣 | 否（HiNet CDN） | AS3462 | 165 反詐騙服務頁 |
-| `adr.npa.gov.tw` | 警政署（防空避難） | 台灣 | 否（HiNet CDN） | AS3462 | 防空避難處所查詢（`adr-web` 避難地圖／資訊） |
-| `app110.npa.gov.tw` | 警政署（110 報案，GSN） | 台灣 | 否（政府網路） | AS4782 | **110 定位報案 API**（`Service.asmx`，送出手機＋GPS） |
-| `nv2.npa.gov.tw` | 警政署（GSN） | 台灣 | 否（政府網路） | AS4782 | 警政後端服務（遺失物等） |
-| `ps.npa.gov.tw` | 警政署（GSN） | 台灣 | 否（政府網路） | AS4782 | 違規拖吊查詢（`TowingService`） |
-| `eze8.npa.gov.tw` | 警政署（新世紀資通） | 台灣 | 否（政府網路） | AS9919 | 失竊車輛／通緝犯查詢（`NpaE8ServerRWD`） |
-| `tm2.npa.gov.tw` | 警政署（新世紀資通） | 台灣 | 否（政府網路） | AS9919 | 交通違規／事故子系統 |
-| `op2.npa.gov.tw` | 警政署（新世紀資通） | 台灣 | 否（政府網路） | AS9919 | 警政後端服務 |
-| `eli.npa.gov.tw` | 警政署（新世紀資通） | 台灣 | 否（政府網路） | AS9919 | 警政後端服務 |
-| `wmts.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | 台灣 | 否（政府機房） | AS7539 | 地圖圖磚（路況／測速點／避難底圖） |
-| `vt.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | 台灣 | 否（政府機房） | AS7539 | 向量圖磚（避難處所點位 MVT） |
-| `rtr.pbs.gov.tw` | 警察廣播電臺（GSN） | 台灣 | 否（政府網路） | AS4782 | 收聽警廣（線上串流） |
-| `165dashboard.tw` | 刑事局 165 打詐儀錶板（委外） | **日本** | **是（AWS 東京）** | AS16509 | 打詐儀錶板前端與 `CIB_DWS_API` 統計 API |
-| `api-next.no8.io` | 打詐儀錶板線上客服 API（委外 NO8） | **日本** | **是（AWS 東京）** | AS16509 | 打詐儀錶板 `live_chat` API |
-| `assets.no8.io` | 打詐儀錶板靜態資源（委外 NO8） | 台灣（邊緣） | 是（AWS CloudFront） | AS16509 | 靜態資源 |
-| `live-chat-console.no8.io` | 打詐儀錶板線上客服（委外 NO8） | 台灣（邊緣） | 是（AWS CloudFront） | AS16509 | 線上客服／聊天 |
-| `www/graph/web/api.facebook.com` 等 Meta 網域 | Meta | 台灣（節點） | 是 | AS32934 | NPA署長室外連、FB SDK |
-| `scontent.ftpe7-*.fna.fbcdn.net` 等 | Meta（FB CDN） | 台灣（節點） | 是 | AS32934 | FB 圖片／靜態內容 |
-| `cse.google.com`／`syndicatedsearch.goog` | Google | 台灣（節點） | 是 | AS15169 | 站內搜尋（Custom Search） |
-| `www.adsensecustomsearchads.com`／`*.adtrafficquality.google` | Google | 台灣（節點） | 是 | AS15169 | 站內搜尋隨附廣告（AdSense for Search） |
-| `www.googletagmanager.com`／`analytics.google.com`／`app-analytics-services.com` | Google | 台灣（節點） | 是 | AS15169 | 使用行為分析（GA／GTM／Firebase） |
-| `fonts.googleapis.com`／`fonts.gstatic.com` | Google | 台灣（節點） | 是 | AS15169 | 網頁字型 |
-| `i.ytimg.com`／`maps.googleapis.com` | Google | 台灣（節點） | 是 | AS15169 | YouTube 影片縮圖／地圖 API |
-| `unpkg.com` | Cloudflare | 台灣（節點） | 是 | AS13335 | 前端 JS 函式庫 CDN |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `www.npa.gov.tw` | 內政部警政署 | TW | 否（HiNet CDN） | AS3462（中華電信 HiNet） |  | 警政署官網、各功能 WebView 內容頁 |
+| `www.apb.npa.gov.tw` | 警政署刑事警察局 | TW | 否（HiNet CDN） | AS3462（中華電信 HiNet） |  | 刑事局相關查詢／內容頁 |
+| `165.npa.gov.tw` | 刑事警察局 165 | TW | 否（HiNet CDN） | AS3462（中華電信 HiNet） |  | 165 反詐騙服務頁 |
+| `adr.npa.gov.tw` | 警政署（防空避難） | TW | 否（HiNet CDN） | AS3462（中華電信 HiNet） |  | 防空避難處所查詢（`adr-web` 避難地圖／資訊） |
+| `app110.npa.gov.tw` | 警政署（110 報案，GSN） | TW | 否（政府網路） | AS4782（GSN） |  | **110 定位報案 API**（`Service.asmx`，送出手機＋GPS） |
+| `nv2.npa.gov.tw` | 警政署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 警政後端服務（遺失物等） |
+| `ps.npa.gov.tw` | 警政署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 違規拖吊查詢（`TowingService`） |
+| `eze8.npa.gov.tw` | 警政署（新世紀資通） | TW | 否（政府網路） | AS9919（新世紀資通） |  | 失竊車輛／通緝犯查詢（`NpaE8ServerRWD`） |
+| `tm2.npa.gov.tw` | 警政署（新世紀資通） | TW | 否（政府網路） | AS9919（新世紀資通） |  | 交通違規／事故子系統 |
+| `op2.npa.gov.tw` | 警政署（新世紀資通） | TW | 否（政府網路） | AS9919（新世紀資通） |  | 警政後端服務 |
+| `eli.npa.gov.tw` | 警政署（新世紀資通） | TW | 否（政府網路） | AS9919（新世紀資通） |  | 警政後端服務 |
+| `wmts.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | TW | 否（政府機房） | AS7539（國網中心） |  | 地圖圖磚（路況／測速點／避難底圖） |
+| `vt.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | TW | 否（政府機房） | AS7539（國網中心） |  | 向量圖磚（避難處所點位 MVT） |
+| `rtr.pbs.gov.tw` | 警察廣播電臺（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 收聽警廣（線上串流） |
+| `165dashboard.tw` | 刑事局 165 打詐儀錶板（委外） | JP | **是（AWS 東京）** | AS16509（AWS） |  | 打詐儀錶板前端與 `CIB_DWS_API` 統計 API |
+| `api-next.no8.io` | 打詐儀錶板線上客服 API（委外 NO8） | JP | **是（AWS 東京）** | AS16509（AWS） |  | 打詐儀錶板 `live_chat` API |
+| `assets.no8.io` | 打詐儀錶板靜態資源（委外 NO8） | TW | 是（AWS CloudFront） | AS16509（AWS） | ✓ | 靜態資源 |
+| `live-chat-console.no8.io` | 打詐儀錶板線上客服（委外 NO8） | TW | 是（AWS CloudFront） | AS16509（AWS） | ✓ | 線上客服／聊天 |
+| `www/graph/web/api.facebook.com` 等 Meta 網域 | Meta | US | 是 | AS32934（Meta） | ✓ | NPA署長室外連、FB SDK |
+| `scontent.ftpe7-*.fna.fbcdn.net` 等 | Meta（FB CDN） | TW | 是 | AS32934（Meta） | ✓ | FB 圖片／靜態內容 |
+| `cse.google.com`／`syndicatedsearch.goog` | Google | TW | 是 | AS15169（Google） | ✓ | 站內搜尋（Custom Search） |
+| `www.adsensecustomsearchads.com`／`*.adtrafficquality.google` | Google | TW | 是 | AS15169（Google） | ✓ | 站內搜尋隨附廣告（AdSense for Search） |
+| `www.googletagmanager.com`／`analytics.google.com`／`app-analytics-services.com` | Google | TW | 是 | AS15169（Google） | ✓ | 使用行為分析（GA／GTM／Firebase） |
+| `fonts.googleapis.com`／`fonts.gstatic.com` | Google | TW | 是 | AS15169（Google） | ✓ | 網頁字型 |
+| `i.ytimg.com`／`maps.googleapis.com` | Google | TW | 是 | AS15169（Google） | ✓ | YouTube 影片縮圖／地圖 API |
+| `unpkg.com` | Cloudflare | TW | 是 | AS13335（Cloudflare） | ✓ | 前端 JS 函式庫 CDN |
 
-> **國家判定說明（以本次實際連線 IP 為準）**：`.npa.gov.tw` 之 GSN 子網域（`app110`、`nv2`、`ps`，連 `210.69.154.x`，AS4782）與新世紀資通子網域（`eze8`、`tm2`、`op2`，連 `122.146.27.x`，AS9919）皆為政府／承包商實體機房，註冊國台灣，資料留在境內。`www.npa.gov.tw`、`www.apb.npa.gov.tw`、`165.npa.gov.tw`、`adr.npa.gov.tw` 由**中華電信 HiNet CDN（AS3462，`203.66.3x.x`）**承載，仍屬台灣電信基礎設施；`wmts`／`vt.nlsc.gov.tw`（`140.110.x.x`，AS7539 國網中心）亦為台灣。Google、Meta、Cloudflare 採 Anycast，連線節點判定位於台灣，但**營運商為海外雲端**，資料出境記「可能」。**165 打詐儀錶板（`165dashboard.tw` → `13.192.196.227`／`52.199.27.173`；`api-next.no8.io` → `54.168.39.95`）本次實測連線落在 AWS 東京（日本 ap-northeast-1），為唯一資料實際落於境外之服務。**
+> **國家判定說明（以本次實際連線 IP 為準）**：`.npa.gov.tw` 之 GSN 子網域（`app110`、`nv2`、`ps`，連 `210.69.154.x`，AS4782）與新世紀資通子網域（`eze8`、`tm2`、`op2`，連 `122.146.27.x`，AS9919）皆為政府／承包商實體機房，註冊國台灣，資料留在境內。`www.npa.gov.tw`、`www.apb.npa.gov.tw`、`165.npa.gov.tw`、`adr.npa.gov.tw` 由**中華電信 HiNet CDN（AS3462，`203.66.3x.x`）**承載，仍屬台灣電信基礎設施；`wmts`／`vt.nlsc.gov.tw`（`140.110.x.x`，AS7539 國網中心）亦為台灣。Google、Meta、Cloudflare 採 Anycast，連線節點判定位於台灣，但**營運商為海外雲端**，資料出境記「可能」。**165 打詐儀錶板（`165dashboard.tw`、`api-next.no8.io`）經 mtr（TCP/443）與 PTR 反查確認為 AWS 東京 EC2（`ap-northeast-1`），為唯一資料實際落於境外之服務。**
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 警政署核心後端（內政部警政署，台灣，非公有雲）
 
@@ -73,16 +75,16 @@ title: 警政服務
 
 | 網域 | 類型 | 連線 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| www.npa.gov.tw | A | 203.66.32.13 | AS3462 | TW |
-| www.apb.npa.gov.tw | A | 203.66.32.43 | AS3462 | TW |
-| 165.npa.gov.tw | A | 203.66.35.104 | AS3462 | TW |
-| adr.npa.gov.tw | A | 203.66.34.36 | AS3462 | TW |
-| app110.npa.gov.tw | A | 210.69.154.36 | AS4782 | TW |
-| nv2.npa.gov.tw | A | 210.69.154.93 | AS4782 | TW |
-| ps.npa.gov.tw | A | 210.69.154.38 | AS4782 | TW |
-| eze8.npa.gov.tw | A | 122.146.27.116 | AS9919 | TW |
-| tm2.npa.gov.tw | A | 122.146.27.67 | AS9919 | TW |
-| op2.npa.gov.tw | A | 122.146.27.88 | AS9919 | TW |
+| www.npa.gov.tw | A | 203.66.32.13 | AS3462（中華電信 HiNet） | TW |
+| www.apb.npa.gov.tw | A | 203.66.32.43 | AS3462（中華電信 HiNet） | TW |
+| 165.npa.gov.tw | A | 203.66.35.104 | AS3462（中華電信 HiNet） | TW |
+| adr.npa.gov.tw | A | 203.66.34.36 | AS3462（中華電信 HiNet） | TW |
+| app110.npa.gov.tw | A | 210.69.154.36 | AS4782（GSN） | TW |
+| nv2.npa.gov.tw | A | 210.69.154.93 | AS4782（GSN） | TW |
+| ps.npa.gov.tw | A | 210.69.154.38 | AS4782（GSN） | TW |
+| eze8.npa.gov.tw | A | 122.146.27.116 | AS9919（新世紀資通） | TW |
+| tm2.npa.gov.tw | A | 122.146.27.67 | AS9919（新世紀資通） | TW |
+| op2.npa.gov.tw | A | 122.146.27.88 | AS9919（新世紀資通） | TW |
 
 AS3462 為中華電信 HiNet；AS4782 為 GSN（政府服務網路，Data Communication Business Group）；AS9919 為新世紀資通（New Century InfoComm，Seednet）。
 
@@ -97,29 +99,34 @@ AS3462 為中華電信 HiNet；AS4782 為 GSN（政府服務網路，Data Commun
 
 | 網域 | 類型 | 連線 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| wmts.nlsc.gov.tw | A | 140.110.20.85 | AS7539 | TW |
-| vt.nlsc.gov.tw | A | 140.110.134.39 | AS7539 | TW |
-| rtr.pbs.gov.tw | A | 117.56.47.51 | AS4782 | TW |
+| wmts.nlsc.gov.tw | A | 140.110.20.85 | AS7539（國網中心） | TW |
+| vt.nlsc.gov.tw | A | 140.110.134.39 | AS7539（國網中心） | TW |
+| rtr.pbs.gov.tw | A | 117.56.47.51 | AS4782（GSN） | TW |
 
 AS7539 為 National Center for High-performance Computing（國網中心）；AS4782 為 GSN。
 
 ### 3. 165 打詐儀錶板（刑事局委外，AWS 東京日本）⚠️
 
 * **域名性質**：`165dashboard.tw` 為 165 打詐儀錶板獨立網站（`CIB_DWS_API` 提供詐騙統計、案例、趨勢等 API）；`*.no8.io` 為其技術服務商（NO8）之線上客服 API、靜態資源網域
-* **地理位置（本次實際連線 IP）**：`165dashboard.tw` → `13.192.196.227`、`52.199.27.173`；`api-next.no8.io` → `54.168.39.95`，皆屬 **AWS 東京區域（`ap-northeast-1`，日本）**；`assets.no8.io`（`65.9.180.10`）、`live-chat-console.no8.io`（`54.192.248.81`）走 AWS CloudFront 邊緣節點
-* **基礎設施**：**Amazon AWS 公有雲（AS16509）**
+* **地理位置（mtr／PTR 驗證）**：以 `mtr --tcp --port 443` 與 DNS PTR 反查確認，兩者皆為 **AWS 東京 EC2（`ap-northeast-1`，日本）**：
+  * `165dashboard.tw` → `52.197.64.104`／`54.95.60.138` → `ec2-52-197-64-104.ap-northeast-1.compute.amazonaws.com`／`ec2-54-95-60-138.ap-northeast-1.compute.amazonaws.com`
+  * `api-next.no8.io` → `52.192.81.202`／`13.113.30.63` → `ec2-52-192-81-202.ap-northeast-1.compute.amazonaws.com`／`ec2-13-113-30-63.ap-northeast-1.compute.amazonaws.com`
+  * `assets.no8.io`（`65.9.180.10`）、`live-chat-console.no8.io`（`54.192.248.81`）走 AWS CloudFront 邊緣節點
+* **基礎設施**：**Amazon AWS 公有雲 EC2（AS16509，東京區域）**
 * **角色**：App 內「打詐儀錶板」防詐統計資訊頁與 API；`api-next.no8.io`／`live-chat-console.no8.io` 提供線上客服（`live_chat`）
-* **資料特性**：本次觀察以**讀取公開防詐統計**（`GetCounter`、`GetDailyCityFraudData`、`GetMonthlyFraudMethodRanking` 等 GET）為主，另有一筆 `AddCounter` 計數；惟前端與 API 主機實體位於**日本東京**，若使用者於此輸入查詢或客服對話，**資料將實際傳輸至境外（日本）**——此為本報告最需注意之出境點
-* **DNS／連線 IP**：
+* **資料特性**：本次觀察以**讀取公開防詐統計**（`GetCounter`、`GetDailyCityFraudData`、`GetMonthlyFraudMethodRanking` 等 GET）為主，另有一筆 `AddCounter` 計數；惟前端與 API 主機實體位於**日本東京 EC2**，若使用者於此輸入查詢或客服對話，**資料將實際傳輸至境外（日本）**——此為本報告最需注意之出境點
+* **DNS／連線 IP**（含 PTR 反查）：
 
-| 網域 | 類型 | 連線 IP | ASN | 國家 |
-|------|------|---------|-----|------|
-| 165dashboard.tw | A | 13.192.196.227 / 52.199.27.173 | AS16509 | JP |
-| api-next.no8.io | A | 54.168.39.95 | AS16509 | JP |
-| assets.no8.io | A | 65.9.180.10 | AS16509 | TW（邊緣） |
-| live-chat-console.no8.io | A | 54.192.248.81 | AS16509 | TW（邊緣） |
+| 網域 | 類型 | 連線 IP | PTR（EC2 主機名） | ASN | 國家 |
+|------|------|---------|-------------------|-----|------|
+| 165dashboard.tw | A | 52.197.64.104 | `ec2-52-197-64-104.ap-northeast-1.compute.amazonaws.com` | AS16509（AWS） | JP |
+| 165dashboard.tw | A | 54.95.60.138 | `ec2-54-95-60-138.ap-northeast-1.compute.amazonaws.com` | AS16509（AWS） | JP |
+| api-next.no8.io | A | 52.192.81.202 | `ec2-52-192-81-202.ap-northeast-1.compute.amazonaws.com` | AS16509（AWS） | JP |
+| api-next.no8.io | A | 13.113.30.63 | `ec2-13-113-30-63.ap-northeast-1.compute.amazonaws.com` | AS16509（AWS） | JP |
+| assets.no8.io | A | 65.9.180.10 | （CloudFront） | AS16509（AWS） | TW（邊緣） |
+| live-chat-console.no8.io | A | 54.192.248.81 | （CloudFront） | AS16509（AWS） | TW（邊緣） |
 
-AS16509 為 Amazon.com, Inc.（AWS）。
+AS16509 為 Amazon.com, Inc.（AWS）。PTR 主機名中的 `ap-northeast-1` 即東京區域，證實主機為該區 EC2 實例。
 
 ### 4. Facebook / Meta（NPA署長室外連與 FB SDK，海外）
 
@@ -147,9 +154,9 @@ AS32934 為 Facebook, Inc.（Meta）。
 
 | 網域 | 類型 | 連線 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| cse.google.com | A | 142.250.192.142 | AS15169 | TW |
-| www.googletagmanager.com | A | 142.250.77.200 | AS15169 | TW |
-| i.ytimg.com | A | 142.250.66.86 | AS15169 | TW |
+| cse.google.com | A | 142.250.192.142 | AS15169（Google） | TW |
+| www.googletagmanager.com | A | 142.250.77.200 | AS15169（Google） | TW |
+| i.ytimg.com | A | 142.250.66.86 | AS15169（Google） | TW |
 
 AS15169 為 Google LLC。
 
@@ -237,7 +244,7 @@ App 啟動 / 進入首頁
 |------|------|--------------|----------|--------------|
 | 警政署核心後端 | `*.npa.gov.tw`（HiNet CDN + GSN + 新世紀資通） | 是 | 台灣 | 否 |
 | ├ 110 定位報案（含個資） | `app110.npa.gov.tw` | 是 | 台灣（GSN） | **否** |
-| └ 車輛／通緝查詢（含個資） | `eze8.npa.gov.tw` | 是 | 台灣（AS9919） | **否** |
+| └ 車輛／通緝查詢（含個資） | `eze8.npa.gov.tw` | 是 | 台灣（AS9919 新世紀資通） | **否** |
 | 地圖／警廣 | `wmts`／`vt.nlsc.gov.tw`、`rtr.pbs.gov.tw` | 是（輔助） | 台灣 | 否 |
 | 165 打詐儀錶板 | `165dashboard.tw`、`api-next.no8.io` | 是（輔助） | **日本（AWS 東京）** | **是** |
 | 打詐儀錶板靜態／客服 | `assets.no8.io`、`live-chat-console.no8.io` | 否 | 台灣（AWS CloudFront） | 可能（AWS 海外營運） |

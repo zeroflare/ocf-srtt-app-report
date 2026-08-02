@@ -28,17 +28,19 @@ title: LINE
 
 依**所屬服務／角色**分為七類。各類列舉代表網域及其節點所在。
 
-| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | 用途 |
-|------|----------|-----------|----------|-----|------|
-| LINE 核心平台 | `legy.line-apps.com`、`api.line.me`、`access.line.me`、`lin.ee`、`notice.line.me` | LY Corporation（日本） | 日本／CDN（美） | AS38631 / AS16625 / AS20940 | 通訊傳輸、API、登入、短網址、通知 |
-| LINE 內容服務 | `today.line.me`、`stickershop.line.me`、`buy.line.me`、`points.line.me`、`music-tw.line.me`、`travel.line.me`、`invoice.line.me` | LY Corporation | 日本／CDN | AS38631 / AS16625 / AS20940 | Today 新聞、貼圖、購物、點數、音樂、旅遊、發票 |
-| LINE 靜態 CDN | `obs.line-scdn.net`、`today-obs`、`shopping.line-scdn.net`、`profile.line-scdn.net`、`stickershop.line-scdn.net` | LINE（Akamai／AWS） | 台灣／美國 | AS16625 / AS20940 / AS16509 | 圖片、貼圖、大頭貼等靜態資源 |
-| LINE Bank／Pay（台灣金融） | `cwa.linebank.com.tw`、`img.linebank.com.tw`、`tsln.taishinbank.com.tw`、`web-tw-pay.line.me` | 連線商業銀行 LINE Bank／台新銀行 | 台灣 | AS9924 / AS9919 / AS131660 | 網銀、支付 |
-| 廣告與追蹤 | `doubleclick`、`googlesyndication`、`moloco.com`、`dable.io`、`connect.facebook.net`、`bat.bing.com`、`adjust.com` | Google／Moloco／Dable（韓）／Meta／微軟／Adjust | 美國／韓國／台灣 | AS15169 等 | 廣告聯播、內容推薦、轉換追蹤 |
-| 分析／監控／安全 | `firebase.googleapis.com`、`google-analytics`、`sentry.io`、`v-key.com` | Google／Sentry／V-Key | 美國 | AS15169 / AS396982 / AS8075 | 分析、錯誤監控、App 安全 SDK |
-| 其他第三方嵌入 | `platform.twitter.com`、`scontent.xx.fbcdn.net`、`linetoday.edh.tw` | Twitter／Meta／聯合報系 | 香港／台灣／美國 | AS54113 / AS32934 / AS396982 | 社群嵌入、新聞內容 |
+| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | Anycast | 用途 |
+|------|------|------|------|------|------|------|
+| LINE 核心平台 | `legy.line-apps.com`、`api.line.me`、`access.line.me`、`lin.ee`、`notice.line.me` | LY Corporation（日本） | JP／TW | AS38631（LINE） / AS16625（Akamai） / AS20940（Akamai） | ✓ | 通訊傳輸、API、登入、短網址、通知 |
+| LINE 內容服務 | `today.line.me`、`stickershop.line.me`、`buy.line.me`、`points.line.me`、`music-tw.line.me`、`travel.line.me`、`invoice.line.me` | LY Corporation | TW／JP | AS38631（LINE） / AS16625（Akamai） / AS20940（Akamai） | ✓ | Today 新聞、貼圖、購物、點數、音樂、旅遊、發票 |
+| LINE 靜態 CDN | `obs.line-scdn.net`、`today-obs`、`shopping.line-scdn.net`、`profile.line-scdn.net`、`stickershop.line-scdn.net` | LINE（Akamai／AWS） | TW／HK／JP | AS16625（Akamai） / AS20940（Akamai） / AS16509（AWS） | ✓ | 圖片、貼圖、大頭貼等靜態資源 |
+| LINE Bank／Pay（台灣金融） | `cwa.linebank.com.tw`、`img.linebank.com.tw`、`tsln.taishinbank.com.tw`、`web-tw-pay.line.me` | 連線商業銀行 LINE Bank／台新銀行 | TW／JP | AS9924（台灣固網） / AS9919（新世紀資通） / AS131660（台新銀行） |  | 網銀、支付 |
+| 廣告與追蹤 | `doubleclick`、`googlesyndication`、`moloco.com`、`dable.io`、`connect.facebook.net`、`bat.bing.com`、`adjust.com` | Google／Moloco／Dable（韓）／Meta／微軟／Adjust | TW | AS15169（Google） 等 | ✓ | 廣告聯播、內容推薦、轉換追蹤 |
+| 分析／監控／安全 | `firebase.googleapis.com`、`google-analytics`、`sentry.io`、`v-key.com` | Google／Sentry／V-Key | TW／SG | AS15169（Google） / AS396982（Google Cloud） / AS8075（Microsoft） | ✓ | 分析、錯誤監控、App 安全 SDK |
+| 其他第三方嵌入 | `platform.twitter.com`、`scontent.xx.fbcdn.net`、`linetoday.edh.tw` | Twitter／Meta／聯合報系 | TW／HK／JP | AS54113（Fastly） / AS32934（Meta） / AS396982（Google Cloud） | ✓ | 社群嵌入、新聞內容 |
 
 > **國家判定說明**：LINE 核心（`*.line-apps.com`、多數 `*.line.me` 原站）解析至 **AS38631（LY Corporation）**，實體在**日本**——此為 LINE 平台本質。CDN 網域（`line-scdn.net`、`api.line.me`、`today.line.me` 等）透過 Akamai（AS16625／AS20940）與 AWS CloudFront（AS16509）分布於**台灣、美國、香港**等節點。**LINE Bank／Pay 之台灣金融網域**（`linebank.com.tw`、`taishinbank.com.tw`）解析至**台灣**（AS9924 台灣固網、AS9919 新世紀資通、AS131660 台新銀行），金融資料在境內。廣告與追蹤第三方多在**美國**，內容推薦商 **Dable（`api.dable.io`）位於韓國（AWS 首爾）**。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. LINE 核心平台（LY Corporation，日本）
 
@@ -50,9 +52,9 @@ title: LINE
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| legy.line-apps.com | 147.92.146.129 | AS38631 | JP |
-| web-tw-pay.line.me | 147.92.184.234 | AS38631 | JP |
-| notice.line.me | 147.92.191.86 | AS38631 | JP |
+| legy.line-apps.com | 147.92.146.129 | AS38631（LINE） | JP |
+| web-tw-pay.line.me | 147.92.184.234 | AS38631（LINE） | JP |
+| notice.line.me | 147.92.191.86 | AS38631（LINE） | JP |
 | api.line.me | 23.217.78.121 | AS16625（Akamai） | US（節點） |
 | access.line.me | 23.195.81.107 | AS20940（Akamai） | US（節點） |
 
@@ -70,9 +72,9 @@ AS38631 為 LY Corporation（日本）。
 |------|---------|-----|------|
 | today.line.me | 23.217.76.44 | AS16625（Akamai） | US（節點） |
 | stickershop.line.me | 18.238.118.84 | AS16509（AWS） | US（節點） |
-| buy.line.me | 210.71.227.51 | AS3462 / AS20940 | TW（節點） |
-| points.line.me | 147.92.242.166 | AS38631 | JP |
-| music-tw.line.me | 147.92.144.186 | AS38631 | JP |
+| buy.line.me | 210.71.227.51 | AS3462（中華電信 HiNet） / AS20940（Akamai） | TW（節點） |
+| points.line.me | 147.92.242.166 | AS38631（LINE） | JP |
+| music-tw.line.me | 147.92.144.186 | AS38631（LINE） | JP |
 
 ### 3. LINE 靜態 CDN（`line-scdn.net`，Akamai／AWS）
 
@@ -98,9 +100,9 @@ AS38631 為 LY Corporation（日本）。
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| cwa.linebank.com.tw | 210.208.97.97 | AS9924 | TW |
-| img.linebank.com.tw | 122.147.229.226 | AS9919 | TW |
-| tsln.taishinbank.com.tw | 203.74.220.1 | AS131660 | TW |
+| cwa.linebank.com.tw | 210.208.97.97 | AS9924（台灣固網） | TW |
+| img.linebank.com.tw | 122.147.229.226 | AS9919（新世紀資通） | TW |
+| tsln.taishinbank.com.tw | 203.74.220.1 | AS131660（台新銀行） | TW |
 
 AS9924 台灣固網；AS9919 新世紀資通；AS131660 台新銀行（Taishin）。
 
@@ -124,7 +126,7 @@ AS9924 台灣固網；AS9919 新世紀資通；AS131660 台新銀行（Taishin�
 | eventfnt-asia.dsp-api.moloco.com | 107.178.244.18 | AS396982（GCP） | US |
 | view.adjust.com | 185.151.204.50 | AS61273（Adjust） | US |
 | bat.bing.com | 150.171.27.10 | AS8075（Microsoft） | US |
-| ad.doubleclick.net | 173.194.174.148 | AS15169 | US |
+| ad.doubleclick.net | 173.194.174.148 | AS15169（Google） | US |
 
 ### 6. 分析／監控／安全（Firebase、Sentry、V-Key）
 

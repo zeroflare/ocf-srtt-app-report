@@ -22,14 +22,15 @@ title: 行動自然人憑證
 
 ## 網域分析
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN  | 主要用途 |
-|------|----------|------------|----------------|---------|----------|
-| `fido.moi.gov.tw` | 內政部 | 台灣 | 否 | GSN | 身分驗證、簽章、推播 Token 註冊、App 內容 |
-| `iid.googleapis.com` | Google | 台灣 | 是  | Google | 推播通知 Token 註冊與 Topic 訂閱 |
-| `app-analytics-services.com` | Google | 台灣 | 是 | Google | App 使用行為分析 |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `fido.moi.gov.tw` | 內政部 | TW | 否 | GSN |  | 身分驗證、簽章、推播 Token 註冊、App 內容 |
+| `iid.googleapis.com` | Google | TW | 是 | Google | ✓ | 推播通知 Token 註冊與 Topic 訂閱 |
+| `app-analytics-services.com` | Google | TW | 是 | Google | ✓ | App 使用行為分析 |
 
 > **國家判定說明**：除 `117.56.7.69`（GSN，WHOIS 確認）外，其餘 Google 服務採 Anycast，連線節點判定位於台灣，營運商仍為 Google 海外雲端。
 
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. fido.moi.gov.tw（內政部，台灣，非雲端）
 
@@ -42,7 +43,7 @@ title: 行動自然人憑證
 
 | 類型 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| A | 117.56.7.69 | AS4782 | TW |
+| A | 117.56.7.69 | AS4782（GSN） | TW |
 
 ASN **AS4782** 為 Data Communication Business Group（GSN）。
 
@@ -57,18 +58,18 @@ ASN **AS4782** 為 Data Communication Business Group（GSN）。
 
 | 類型 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| A | 172.217.112.4 | AS15169 | TW |
-| A | 172.217.113.4 | AS15169 | TW |
-| A | 172.217.114.4 | AS15169 | TW |
-| A | 172.217.115.4 | AS15169 | TW |
-| A | 172.217.116.4 | AS15169 | TW |
-| A | 172.217.117.4 | AS15169 | TW |
-| A | 172.217.118.4 | AS15169 | TW |
-| A | 172.217.119.4 | AS15169 | TW |
-| A | 216.239.32.223 | AS15169 | TW |
-| A | 216.239.34.223 | AS15169 | TW |
-| A | 216.239.36.223 | AS15169 | TW |
-| A | 216.239.38.223 | AS15169 | TW |
+| A | 172.217.112.4 | AS15169（Google） | TW |
+| A | 172.217.113.4 | AS15169（Google） | TW |
+| A | 172.217.114.4 | AS15169（Google） | TW |
+| A | 172.217.115.4 | AS15169（Google） | TW |
+| A | 172.217.116.4 | AS15169（Google） | TW |
+| A | 172.217.117.4 | AS15169（Google） | TW |
+| A | 172.217.118.4 | AS15169（Google） | TW |
+| A | 172.217.119.4 | AS15169（Google） | TW |
+| A | 216.239.32.223 | AS15169（Google） | TW |
+| A | 216.239.34.223 | AS15169（Google） | TW |
+| A | 216.239.36.223 | AS15169（Google） | TW |
+| A | 216.239.38.223 | AS15169（Google） | TW |
 
 ASN **AS15169** 為 Google LLC。
 
@@ -83,7 +84,7 @@ ASN **AS15169** 為 Google LLC。
 
 | 類型 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| A | 142.250.77.206 | AS15169 | TW |
+| A | 142.250.77.206 | AS15169（Google） | TW |
 
 ASN **AS15169** 為 Google LLC。
 

@@ -28,25 +28,27 @@ title: ChatGPT
 
 依**所屬單位／角色**分為四類。iOS 系統層背景網域已於文末排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `chatgpt.com`／`ws.chatgpt.com`／`ab.chatgpt.com` | OpenAI | 台灣／美國（節點） | 是（Cloudflare） | AS13335 | 對話主服務、WebSocket、A/B |
-| `ios.chat.openai.com` | OpenAI | 台灣／美國（節點） | 是（Cloudflare） | AS13335 | iOS 對話 API |
-| `files.openai.com`／`images.openai.com`／`help.openai.com` | OpenAI | 台灣／美國（節點） | 是（Cloudflare） | AS13335 | 檔案、圖片、說明 |
-| `api.oaistatsig.com` | OpenAI（Statsig 實驗） | 台灣／美國（節點） | 是（Cloudflare） | AS13335 | 功能旗標／實驗 |
-| `auth.openai.com` | OpenAI | 台灣／美國（節點） | 是（Cloudflare） | AS13335 | 登入 |
-| `cdn.auth0.com` | Auth0（身分認證） | 台灣／美國（節點） | 是（AWS） | AS16509 | 登入元件 |
-| `accounts.google.com` | Google | 台灣（節點） | 是 | AS15169 | Google 帳號登入 |
-| `api.revenuecat.com` | RevenueCat（訂閱管理） | 台灣（節點） | 是（AWS） | AS16509 | ChatGPT Plus 訂閱 |
-| `o33249.ingest.us.sentry.io` | Sentry（錯誤監控） | **美國** | 是（Google Cloud） | AS396982 | 當機／錯誤回報 |
-| `t0.gstatic.com`／`t1.gstatic.com` | Google | 台灣（節點） | 是 | AS15169 | 靜態資源 |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|----------|------|------|-----|---------|----------|
+| `chatgpt.com`／`ws.chatgpt.com`／`ab.chatgpt.com` | OpenAI | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 對話主服務、WebSocket、A/B |
+| `ios.chat.openai.com` | OpenAI | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | iOS 對話 API |
+| `files.openai.com`／`images.openai.com`／`help.openai.com` | OpenAI | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 檔案、圖片、說明 |
+| `api.oaistatsig.com` | OpenAI（Statsig 實驗） | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 功能旗標／實驗 |
+| `auth.openai.com` | OpenAI | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 登入 |
+| `cdn.auth0.com` | Auth0（身分認證） | TW | 是（AWS CloudFront） | AS16509（AWS） | ✓ | 登入元件 |
+| `accounts.google.com` | Google | TW | 是 | AS15169（Google） | ✓ | Google 帳號登入 |
+| `api.revenuecat.com` | RevenueCat（訂閱管理） | TW | 是（AWS CloudFront） | AS16509（AWS） | ✓ | ChatGPT Plus 訂閱 |
+| `o33249.ingest.us.sentry.io` | Sentry（錯誤監控） | TW | 是（Google Cloud） | AS396982（Google Cloud） | ✓ | 當機／錯誤回報 |
+| `t0.gstatic.com`／`t1.gstatic.com` | Google | TW | 是 | AS15169（Google） | ✓ | 靜態資源 |
 
-> **國家判定說明**：OpenAI 之所有服務網域（`*.chatgpt.com`、`*.openai.com`、`api.oaistatsig.com`）ASN 均為 **AS13335（Cloudflare）**，採 Anycast，連線節點解析多在**台灣／美國**，但營運商為 OpenAI（美國），對話內容由 OpenAI 處理。身分認證之 `cdn.auth0.com`（Auth0）與訂閱之 `api.revenuecat.com` 位於 AWS；錯誤監控之 `o33249.ingest.us.sentry.io` 主機名明示 **US（美國）**。
+> **國家判定說明（以 `mtr --tcp --port 443` 為準）**：2026-08-02 對報告內全部網域重測結果如下——OpenAI 相關（`chatgpt.com`、`ws`／`ab.chatgpt.com`、`ios.chat`／`files`／`images`／`help.openai.com`、`api.oaistatsig.com`、`auth.openai.com`）皆為 **Cloudflare Anycast（AS13335）**，終點延遲約 **5–8ms** → **TW**。`cdn.auth0.com` 終點 **`tpe53`（台北，Best ~5ms）** → **TW**。`api.revenuecat.com` 終點 **`tpe54`（台北）** → **TW**。`accounts.google.com`／`t0`／`t1.gstatic.com` 為 **Google Anycast**（`*.1e100.net`，~5–9ms）→ **TW**。`o33249.ingest.us.sentry.io` 終點 GCP（`*.bc.googleusercontent.com`，AS396982，~8–11ms）→ **TW**（主機名含 `us` 不代表連線在美國）。
+
+> **Anycast 判定**：Cloudflare、Google（AS15169）、CloudFront、GCP Global LB 等採 Anycast／多邊緣選路者標 ✓。
 
 ### 1. OpenAI 對話核心（OpenAI，美國，經 Cloudflare）⭐
 
 * **域名性質**：`chatgpt.com`（主服務）、`ws.chatgpt.com`（WebSocket 即時對話）、`ios.chat.openai.com`（iOS 對話 API）、`ab.chatgpt.com`、`api.oaistatsig.com`（實驗）、`files`／`images`／`help.openai.com`
-* **地理位置**：ASN **AS13335（Cloudflare）**，Anycast，連線節點多在台灣／美國（`104.18.x.x`）
+* **地理位置**：ASN **AS13335（Cloudflare）**，Anycast，自台灣連線節點判定為 **TW**（`104.18.x.x`）
 * **基礎設施**：OpenAI 服務全部經 Cloudflare 前端傳遞
 * **角色**：對話（含即時串流）、檔案與圖片、功能實驗
 * **資料特性**：**對話內容（prompt／回覆）為高度敏感之個人輸入**，由 OpenAI（美國）處理——此為使用 ChatGPT 之本質
@@ -54,35 +56,41 @@ title: ChatGPT
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| chatgpt.com | 104.18.32.47 | AS13335 | TW／US（節點） |
-| ws.chatgpt.com | 104.18.39.21 | AS13335 | TW／US（節點） |
-| ios.chat.openai.com | 104.18.39.85 | AS13335 | TW／US（節點） |
+| chatgpt.com | 104.18.32.47 | AS13335（Cloudflare） | TW |
+| ws.chatgpt.com | 104.18.39.21 | AS13335（Cloudflare） | TW |
+| ios.chat.openai.com | 104.18.39.85 | AS13335（Cloudflare） | TW |
 
 ### 2. 身分認證（OpenAI Auth／Auth0／Google）
 
-* **域名性質**：`auth.openai.com`（OpenAI 登入，Cloudflare）、`cdn.auth0.com`（Auth0 身分認證元件，AWS）、`accounts.google.com`（Google 帳號登入）
+* **域名性質**：`auth.openai.com`（OpenAI 登入，Cloudflare）、`cdn.auth0.com`（Auth0 身分認證元件，AWS CloudFront）、`accounts.google.com`（Google 帳號登入）
+* **地理位置（mtr TCP/443）**：
+  * `auth.openai.com`：Cloudflare Anycast → **TW**
+  * `cdn.auth0.com`：CloudFront；mtr 443 終點 `tpe53`（台北，Best ~5ms）→ **TW**
+  * `accounts.google.com`：終點 `tp-in-f84.1e100.net`（AS15169），延遲約 **8ms** → **TW**（Google Anycast）
 * **角色**：使用者登入與帳號驗證（支援 Google 登入）
 * **資料特性**：帳號識別；Auth0 為第三方身分認證供應商
-* **DNS 解析結果**：
+* **DNS／mtr 結果**：
 
-| 網域 | 解析 IP | ASN | 國家 |
-|------|---------|-----|------|
-| auth.openai.com | 104.18.41.241 | AS13335 | TW／US（節點） |
-| cdn.auth0.com | 54.192.250.35 | AS16509（AWS） | TW／US（節點） |
-| accounts.google.com | 64.233.188.84 | AS15169 | TW（節點） |
+| 網域 | 連線／解析 | ASN | 國家 | Anycast |
+|------|------------|-----|------|---------|
+| auth.openai.com | Cloudflare `104.18.x` | AS13335（Cloudflare） | TW | ✓ |
+| cdn.auth0.com | CloudFront `tpe53` | AS16509（AWS） | TW | ✓ |
+| accounts.google.com | `tp-in-f84.1e100.net` | AS15169（Google） | TW | ✓ |
 
 ### 3. 訂閱與錯誤監控（RevenueCat／Sentry）
 
 * **域名性質**：`api.revenuecat.com`（RevenueCat 訂閱／購買管理，供 ChatGPT Plus）、`o33249.ingest.us.sentry.io`（Sentry 錯誤／當機回報）
-* **地理位置**：RevenueCat（AWS）；Sentry 主機名明示 **US（美國）**（`34.160.81.0`，Google Cloud）
+* **地理位置（mtr TCP/443）**：
+  * `api.revenuecat.com`：終點 `server-3-169-137-123.tpe54.r.cloudfront.net`（**tpe54＝台北**），延遲約 **5ms** → **TW**
+  * `o33249.ingest.us.sentry.io`：主機名含 `us`，但終點為 GCP `0.81.160.34.bc.googleusercontent.com`（AS396982），Best 約 **8ms** → 連線節點判定 **TW**（非直連美國機房）；營運商仍為海外
 * **角色**：訂閱狀態管理、App 錯誤監控
 * **資料特性**：訂閱資訊與當機遙測；營運商為海外
-* **DNS 解析結果**：
+* **DNS／mtr 結果**：
 
-| 網域 | 解析 IP | ASN | 國家 |
-|------|---------|-----|------|
-| api.revenuecat.com | 3.169.137.108 | AS16509（AWS） | TW（節點） |
-| o33249.ingest.us.sentry.io | 34.160.81.0 | AS396982（GCP） | US |
+| 網域 | 連線／解析 | ASN | 國家 | Anycast |
+|------|------------|-----|------|---------|
+| api.revenuecat.com | CloudFront `tpe54`（`3.169.137.123`） | AS16509（AWS） | TW | ✓ |
+| o33249.ingest.us.sentry.io | `34.160.81.0`（GCP） | AS396982（Google Cloud） | TW | ✓ |
 
 ### 4. iOS 系統背景網域（非 App 業務流量，已排除）
 
@@ -104,7 +112,7 @@ title: ChatGPT
 
 ### 三、訂閱與監控（RevenueCat、Sentry）
 
-ChatGPT Plus 訂閱透過 RevenueCat 管理；App 錯誤透過 Sentry（美國）回報。
+ChatGPT Plus 訂閱透過 RevenueCat 管理；App 錯誤透過 Sentry 回報（連線節點為 GCP 邊緣 TW，營運海外）。
 
 ---
 
@@ -116,7 +124,7 @@ App 啟動 / 登入
   ├─→ Google 帳號登入（可選）            (accounts.google.com)
   ├─→ 功能實驗 / 旗標                    (api.oaistatsig.com)
   ├─→ 訂閱狀態                           (api.revenuecat.com)
-  └─→ 錯誤監控                           (o33249.ingest.us.sentry.io ← 美國)
+  └─→ 錯誤監控                           (o33249.ingest.us.sentry.io ← GCP 邊緣 TW)
 
 對話（核心）⭐
   ├─→ iOS 對話 API                       (ios.chat.openai.com ← Cloudflare/OpenAI)
@@ -130,16 +138,16 @@ App 啟動 / 登入
 
 ## 摘要
 
-| 分類 | 網域 | 是否核心功能 | 連線節點 | 資料是否出境 |
-|------|------|--------------|----------|--------------|
-| OpenAI 對話核心 | `*.chatgpt.com`、`*.openai.com` | 是 | 台灣／美國（Cloudflare Anycast） | **是（OpenAI 美國）** |
-| 身分認證 | `auth.openai.com`、`cdn.auth0.com`、`accounts.google.com` | 是 | 台灣／美國 | 是 |
-| 訂閱／監控 | `api.revenuecat.com`、`sentry.io` | 否 | 台灣／**美國** | 是 |
-| 靜態資源 | `t0/t1.gstatic.com` | 否 | 台灣（節點） | 可能 |
+| 分類 | 網域 | 是否核心功能 | 連線節點（mtr 443） | 資料是否出境 |
+|------|------|--------------|---------------------|--------------|
+| OpenAI 對話核心 | `*.chatgpt.com`、`*.openai.com` | 是 | TW（Cloudflare Anycast） | **是（OpenAI 美國）** |
+| 身分認證 | `auth.openai.com`、`cdn.auth0.com`、`accounts.google.com` | 是 | TW（Auth0＝CloudFront `tpe53`） | 是 |
+| 訂閱／監控 | `api.revenuecat.com`、`sentry.io` | 否 | TW（CloudFront `tpe54`／GCP 邊緣） | 是（營運海外） |
+| 靜態資源 | `t0/t1.gstatic.com` | 否 | TW（Google Anycast） | 可能 |
 
-ChatGPT 是 **OpenAI（美國）**之外商 AI 服務。其**流向極為單純**：對話核心全部經 Cloudflare（Anycast，節點多在台灣／美國）傳遞，營運商為 OpenAI；登入採 OpenAI Auth＋Auth0＋Google；訂閱由 RevenueCat 管理；錯誤監控由 Sentry（美國）處理。**值得特別指出：本次未見任何廣告或跨站追蹤 SDK**——相較蝦皮、台灣Pay、LINE 之大量廣告追蹤，ChatGPT 的第三方組成極為精簡（僅身分認證、訂閱、錯誤監控等功能性服務）。
+ChatGPT 是 **OpenAI（美國）**之外商 AI 服務。其**流向極為單純**：對話核心全部經 Cloudflare（Anycast，mtr 443 判定 **TW**）傳遞，營運商為 OpenAI；登入採 OpenAI Auth＋Auth0＋Google；訂閱由 RevenueCat（CloudFront **tpe54**）管理；錯誤監控由 Sentry 經 GCP 邊緣承接（主機名含 `us`，但 mtr 443 連線節點為 **TW**）。**值得特別指出：本次未見任何廣告或跨站追蹤 SDK**——相較蝦皮、台灣Pay、LINE 之大量廣告追蹤，ChatGPT 的第三方組成極為精簡（僅身分認證、訂閱、錯誤監控等功能性服務）。
 
-使用 ChatGPT 的本質，是接受**對話內容（prompt 與回覆）由 OpenAI（美國）處理**——這是最需注意之資料類型，因對話往往包含使用者主動輸入之敏感資訊。連線節點雖多在台灣（Cloudflare Anycast），營運商仍為 OpenAI 美國。
+使用 ChatGPT 的本質，是接受**對話內容（prompt 與回覆）由 OpenAI（美國）處理**——這是最需注意之資料類型，因對話往往包含使用者主動輸入之敏感資訊。連線節點雖多在台灣（Cloudflare／CloudFront／Google Anycast），營運商仍為海外。
 
 > **隱私風險評估**：ChatGPT 不存在「廣告／跨站追蹤外流」的問題——其資料流向單一且集中：**對話內容到 OpenAI（美國）**。風險本質在於使用者是否接受將對話（可能含個資、營業或機敏內容）交由外商 AI 服務處理與（依其政策）用於模型改善。此為使用 ChatGPT 之平台本質，非隱蔽外洩。若在意，可於 ChatGPT 設定中關閉「用於訓練模型」選項。本次為瀏覽式測試，實際對話之傳輸內容與加密方式，建議後續加測 HTTP 明細以完整評估。
 
@@ -152,9 +160,9 @@ ChatGPT 是 **OpenAI（美國）**之外商 AI 服務。其**流向極為單純*
 **核心確認（OpenAI，全走 Cloudflare `104.18.x`／`172.64.x`）**：`ios.chat.openai.com`、`chatgpt.com`、`ab.chatgpt.com`、`ws.chatgpt.com`（WebSocket）、`files.openai.com`、`cdn.openai.com`、`persistent/help-center-cdn.oaistatic.com`、`cdn.platform.openai.com`、`sdmntprseasia.oaiusercontent.com`。
 
 **功能性第三方（與初測一致，無廣告）**：
-* **Sentry（錯誤監控）**：`o33249.ingest.us.sentry.io`（GCP 美國）。
-* **RevenueCat（訂閱管理）**：`api.revenuecat.com`（AWS 美國）。
-* **Auth0（登入）**：`cdn.auth0.com`。
+* **Sentry（錯誤監控）**：`o33249.ingest.us.sentry.io`（GCP 邊緣；主機名含 us，mtr 443 連線節點為 TW）。
+* **RevenueCat（訂閱管理）**：`api.revenuecat.com`（CloudFront `tpe54`，TW）。
+* **Auth0（登入）**：`cdn.auth0.com`（CloudFront `tpe53`，TW）。
 * **Statsig（功能旗標）**：`api.oaistatsig.com`。
 * **Google**：`www.google.com`、`t0–t3.gstatic.com`（登入 reCAPTCHA／字型）。
 

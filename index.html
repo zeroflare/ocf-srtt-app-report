@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <title>OCF SRTT App 分析報告</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --header-from: #155799;
+      --header-to: #159957;
+      --text: #333;
+      --muted: #666;
+      --border: #e1e4e8;
+      --bg: #f6f8fa;
+      --link: #0366d6;
+      --content-max: 52rem;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Open Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background: #fff;
+      line-height: 1.65;
+    }
+    .page-header {
+      background: linear-gradient(120deg, var(--header-from), var(--header-to));
+      color: #fff;
+      text-align: center;
+      padding: 2.5rem 1.25rem 2rem;
+    }
+    .page-header a { color: #fff; text-decoration: none; }
+    .page-header h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .page-header p {
+      margin: 0.6rem 0 0;
+      opacity: 0.92;
+      font-size: 1.05rem;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 15rem 1fr;
+      gap: 0;
+      min-height: calc(100vh - 8rem);
+    }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+    .sidebar {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem;
+      font-size: 0.92rem;
+    }
+    .sidebar h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .sidebar a {
+      display: block;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #fff;
+      color: var(--link);
+    }
+    .sidebar .nav-group { margin-bottom: 1.25rem; }
+    main {
+      padding: 1.75rem 1.5rem 3rem;
+      max-width: calc(var(--content-max) + 3rem);
+    }
+    #content { max-width: var(--content-max); }
+    #content h1 { margin-top: 0; font-size: 1.75rem; }
+    #content h2 {
+      margin-top: 2rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.35rem;
+    }
+    #content h3 { margin-top: 1.5rem; font-size: 1.15rem; }
+    #content a { color: var(--link); }
+    #content table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    #content th, #content td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    #content th { background: var(--bg); }
+    #content blockquote {
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      border-left: 4px solid var(--header-to);
+      background: var(--bg);
+      color: #444;
+    }
+    #content code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: var(--bg);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+    }
+    #content pre {
+      background: #24292e;
+      color: #e6edf3;
+      padding: 1rem;
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+    #content pre code { background: none; padding: 0; color: inherit; }
+    #content img {
+      max-width: 100%;
+      height: auto;
+    }
+    .back-link { margin-bottom: 1rem; }
+    .status {
+      color: var(--muted);
+      padding: 2rem 0;
+    }
+    .status.error { color: #b00020; }
+    footer.site-footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1><a href="#/">OCF SRTT App 分析報告</a></h1>
+    <p>台灣常用 App 網路流量與資料流向分析</p>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="nav-group">
+        <h2>導覽</h2>
+        <a href="#/" data-route="/">首頁</a>
+        <a href="#/SUMMARY" data-route="/SUMMARY">綜合報告</a>
+        <a href="#/HANDBOOK" data-route="/HANDBOOK">分析手冊</a>
+      </div>
+      <div class="nav-group">
+        <h2>App 報告</h2>
+        <a href="#/apps/twfido" data-route="/apps/twfido">行動自然人憑證</a>
+        <a href="#/apps/police" data-route="/apps/police">警政服務</a>
+        <a href="#/apps/nhiapp" data-route="/apps/nhiapp">健保快易通</a>
+        <a href="#/apps/post" data-route="/apps/post">郵局</a>
+        <a href="#/apps/tra" data-route="/apps/tra">台鐵e訂通</a>
+        <a href="#/apps/taiwanpay" data-route="/apps/taiwanpay">台灣Pay</a>
+        <a href="#/apps/line" data-route="/apps/line">LINE</a>
+        <a href="#/apps/googlemaps" data-route="/apps/googlemaps">Google 地圖</a>
+        <a href="#/apps/shopee" data-route="/apps/shopee">蝦皮購物</a>
+        <a href="#/apps/chatgpt" data-route="/apps/chatgpt">ChatGPT</a>
+        <a href="#/apps/ihome" data-route="/apps/ihome">智生活</a>
+      </div>
+    </aside>
+
+    <main>
+      <div id="content" class="status">載入中…</div>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    OCF SRTT App 分析報告 · 以 Markdown 靜態呈現
+  </footer>
+
+  <script>
+    const TITLES = {
+      '/': '首頁',
+      '/SUMMARY': '綜合報告',
+      '/HANDBOOK': '分析手冊',
+      '/apps/twfido': '行動自然人憑證',
+      '/apps/police': '警政服務',
+      '/apps/nhiapp': '健保快易通',
+      '/apps/post': '郵局',
+      '/apps/tra': '台鐵e訂通',
+      '/apps/taiwanpay': '台灣Pay',
+      '/apps/line': 'LINE',
+      '/apps/googlemaps': 'Google 地圖',
+      '/apps/shopee': '蝦皮購物',
+      '/apps/chatgpt': 'ChatGPT',
+      '/apps/ihome': '智生活',
+    };
+
+    function stripFrontMatter(text) {
+      if (!text.startsWith('---')) return text;
+      const end = text.indexOf('\n---', 3);
+      if (end === -1) return text;
+      return text.slice(end + 4).replace(/^\s+/, '');
+    }
+
+    function routeFromHash() {
+      let hash = location.hash.replace(/^#/, '') || '/';
+      if (!hash.startsWith('/')) hash = '/' + hash;
+      hash = hash.replace(/\/$/, '') || '/';
+      hash = hash.replace(/\.md$/i, '').replace(/\.html$/i, '');
+      return hash;
+    }
+
+    function fileForRoute(route) {
+      if (route === '/') return 'index.md';
+      return route.replace(/^\//, '') + '.md';
+    }
+
+    function rewriteLinks(container, currentRoute) {
+      container.querySelectorAll('a[href]').forEach((a) => {
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('#')) return;
+
+        let path = href.split('#')[0];
+        path = path.replace(/^\.\//, '');
+
+        // relative from apps/xxx.md → ../SUMMARY.md etc.
+        if (currentRoute.startsWith('/apps/') && path.startsWith('../')) {
+          path = path.replace(/^\.\.\//, '');
+        }
+
+        if (/\.(md|html)$/i.test(path) || path.startsWith('apps/')) {
+          path = path.replace(/\.html$/i, '').replace(/\.md$/i, '');
+          if (!path.startsWith('/')) path = '/' + path;
+          a.setAttribute('href', '#' + path);
+        }
+      });
+
+      // fix relative images when viewing apps/*
+      container.querySelectorAll('img[src]').forEach((img) => {
+        const src = img.getAttribute('src');
+        if (!src || src.startsWith('http') || src.startsWith('data:')) return;
+        if (currentRoute.startsWith('/apps/') && src.startsWith('../')) {
+          img.setAttribute('src', src.replace(/^\.\.\//, ''));
+        } else if (currentRoute.startsWith('/apps/') && !src.startsWith('/') && !src.startsWith('apps/')) {
+          // leave as-is (absolute from site root preferred: img/...)
+        }
+      });
+    }
+
+    function setActiveNav(route) {
+      document.querySelectorAll('.sidebar a[data-route]').forEach((a) => {
+        a.classList.toggle('active', a.getAttribute('data-route') === route);
+      });
+    }
+
+    async function render() {
+      const route = routeFromHash();
+      const file = fileForRoute(route);
+      const el = document.getElementById('content');
+      const title = TITLES[route] || route;
+      document.title = `${title} · OCF SRTT App 分析報告`;
+      setActiveNav(route);
+      el.className = 'status';
+      el.textContent = '載入中…';
+
+      try {
+        const res = await fetch(file, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        let md = stripFrontMatter(await res.text());
+        el.className = '';
+        let html = '';
+        if (route !== '/') {
+          html += `<p class="back-link"><a href="#/">← 回首頁</a></p>`;
+        }
+        html += marked.parse(md);
+        el.innerHTML = html;
+        rewriteLinks(el, route);
+        window.scrollTo(0, 0);
+      } catch (err) {
+        el.className = 'status error';
+        el.innerHTML = `無法載入 <code>${file}</code>。<br>若以檔案直接開啟，請改用本機伺服器，例如：<code>python3 -m http.server</code><br><small>${err.message}</small>`;
+      }
+    }
+
+    window.addEventListener('hashchange', render);
+    if (!location.hash) location.hash = '#/';
+    else render();
+  </script>
+</body>
+</html>

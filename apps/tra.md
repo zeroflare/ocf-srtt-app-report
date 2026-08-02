@@ -28,20 +28,22 @@ title: 台鐵e訂通
 
 依**所屬單位／角色**分為五類，國家與雲端歸屬以本次 HAR 內**實際連線的 server IP** 為準。iOS 系統層背景網域已於文末另列並排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `www.railway.gov.tw` | 臺灣鐵路 | 台灣 | 否（HiNet） | AS3462 | 台鐵官方服務／訂票（本次 89 次，僅 CONNECT） |
-| `tip-tr4cdn.cdn.hinet.net` | 臺灣鐵路（HiNet CDN） | 台灣 | 否（電信 CDN） | AS3462 | 台鐵服務 CDN 前端 |
-| `www.taiwanpay.com.tw` | 臺灣行動支付 TWMP（台灣Pay） | 台灣 | 部分（Akamai） | AS3462 / AS20940 | 付款（台灣Pay，本次未觸發） |
-| `www.google-analytics.com`／`www.googletagmanager.com`／`app-analytics-services.com` | Google | 台灣（節點） | 是 | AS15169 | 使用行為分析 |
-| `www.googleadservices.com` | Google | 美國 | 是 | AS15169 | 廣告轉換（本次未觸發） |
-| `firebase*`／`device-provisioning`／`play.googleapis.com`／`clients4.google.com` | Google（Firebase／FCM／Play） | 台灣／美國 | 是 | AS15169 | 推播／Play 服務 |
-| `fonts.gstatic.com`／`fonts.googleapis.com`／`ssl.gstatic.com` | Google | 台灣（節點） | 是 | AS15169 | 網頁字型 |
-| `pages.trip.com`／`tw.trip.com`／`*.tripcdn.com` | Trip.com（攜程／Ctrip） | 節點台灣、營運海外 | 是 | HiNet 節點 | **疑似 App 內廣告／旅遊合作**（待確認） |
-| `link.tw.coupang.com`／`img1a.coupangcdn.com` | Coupang（韓國酷澎） | 節點台灣、營運海外 | 是 | HiNet 節點 | **疑似 App 內廣告**（待確認） |
-| `look.twword.com` | twword（Cloudflare 承載） | 海外節點 | 是（Cloudflare） | AS13335 | **疑似 App 內廣告**（待確認） |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `www.railway.gov.tw` | 臺灣鐵路 | TW | 否（HiNet） | AS3462（中華電信 HiNet） |  | 台鐵官方服務／訂票（本次 89 次，僅 CONNECT） |
+| `tip-tr4cdn.cdn.hinet.net` | 臺灣鐵路（HiNet CDN） | TW | 否（電信 CDN） | AS3462（中華電信 HiNet） |  | 台鐵服務 CDN 前端 |
+| `www.taiwanpay.com.tw` | 臺灣行動支付 TWMP（台灣Pay） | TW | 部分（Akamai） | AS3462（中華電信 HiNet） / AS20940（Akamai） |  | 付款（台灣Pay，本次未觸發） |
+| `www.google-analytics.com`／`www.googletagmanager.com`／`app-analytics-services.com` | Google | TW | 是 | AS15169（Google） | ✓ | 使用行為分析 |
+| `www.googleadservices.com` | Google | TW | 是 | AS15169（Google） | ✓ | 廣告轉換（本次未觸發） |
+| `firebase*`／`device-provisioning`／`play.googleapis.com`／`clients4.google.com` | Google（Firebase／FCM／Play） | TW | 是 | AS15169（Google） | ✓ | 推播／Play 服務 |
+| `fonts.gstatic.com`／`fonts.googleapis.com`／`ssl.gstatic.com` | Google | TW | 是 | AS15169（Google） | ✓ | 網頁字型 |
+| `pages.trip.com`／`tw.trip.com`／`*.tripcdn.com` | Trip.com（攜程／Ctrip） | TW | 是 | HiNet 節點 |  | **疑似 App 內廣告／旅遊合作**（待確認） |
+| `link.tw.coupang.com`／`img1a.coupangcdn.com` | Coupang（韓國酷澎） | TW | 是 | HiNet 節點 | ✓ | **疑似 App 內廣告**（待確認） |
+| `look.twword.com` | twword（Cloudflare 承載） | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | **疑似 App 內廣告**（待確認） |
 
 > **國家判定說明（以本次實際連線 IP 為準）**：台鐵核心（`www.railway.gov.tw` → `210.242.36.6`、`tip-tr4cdn.cdn.hinet.net` → `203.66.32.x`）為 **AS3462（中華電信 HiNet）**，台灣境內、非公有雲。付款 `www.taiwanpay.com.tw`（TWMP）本次未再連線。Google 分析／推播／字型（AS15169）採 Anycast，連線節點部分在台灣，營運商為 Google 海外，出境記「可能／是」。**新見之 Trip.com（`pages/tw.trip.com`、`*.tripcdn.com`）與 Coupang（`link.tw.coupang.com`、`img1a.coupangcdn.com`）本次雖連 HiNet 台灣節點（`210.71.227.x`／`203.69.138.x`），但兩者營運商分別為攜程（星／中）與酷澎（韓），屬海外業者**；`look.twword.com` 走 Cloudflare（美國）。此三者為單次 CONNECT、內容未解密，研判為 App 內廣告版位所載，歸屬待確認。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 台鐵核心服務（臺灣鐵路，台灣，非公有雲）
 
@@ -54,8 +56,8 @@ title: 台鐵e訂通
 
 | 網域 | 連線 IP | ASN | 國家 |
 |------|---------|-----|------|
-| www.railway.gov.tw | 210.242.36.6 | AS3462 | TW |
-| tip-tr4cdn.cdn.hinet.net | 203.66.32.5／.105／.194 | AS3462 | TW |
+| www.railway.gov.tw | 210.242.36.6 | AS3462（中華電信 HiNet） | TW |
+| tip-tr4cdn.cdn.hinet.net | 203.66.32.5／.105／.194 | AS3462（中華電信 HiNet） | TW |
 
 ### 2. 付款整合（台灣Pay，台灣）
 
@@ -79,9 +81,9 @@ title: 台鐵e訂通
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| www.google-analytics.com | 142.250.66.78 | AS15169 | TW（節點） |
-| www.googleadservices.com | 173.194.64.154 | AS15169 | US |
-| firebaselogging-pa.googleapis.com | 172.217.112.4 | AS15169 | US |
+| www.google-analytics.com | 142.250.66.78 | AS15169（Google） | TW（節點） |
+| www.googleadservices.com | 173.194.64.154 | AS15169（Google） | US |
+| firebaselogging-pa.googleapis.com | 172.217.112.4 | AS15169（Google） | US |
 
 ### 4. 廣告／旅遊第三方（疑似 App 內廣告，待確認）
 

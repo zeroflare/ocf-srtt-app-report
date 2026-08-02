@@ -27,7 +27,7 @@ title: 郵局（中華郵政）
 ### 擷取限制示意：登入功能之 SSL 異常偵測（ES-0103）
 
 <figure style="margin:1.5em 0; text-align:center;">
-  <img src="{{ '/img/post.png' | relative_url }}" alt="行動郵局 SSL 連線異常警告（ES-0103）" style="max-width:300px; width:100%; border:1px solid #ddd; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+  <img src="img/post.png" alt="行動郵局 SSL 連線異常警告（ES-0103）" style="max-width:300px; width:100%; border:1px solid #ddd; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.12);">
   <figcaption style="font-size:0.9em; color:#666; margin-top:0.6em;">▲ 行動郵局於「儲金保險登入」偵測到連線加密（SSL）異常，跳出 ES-0103 警告並停止提供登入／儲匯功能。此為 App 之資安防護（防中間人攔截），亦是本次無法解密其金融流量之原因。</figcaption>
 </figure>
 
@@ -39,25 +39,27 @@ title: 郵局（中華郵政）
 
 以下依**所屬單位／角色**分為五類彙整，國家與雲端歸屬以本次 HAR 內**實際連線的 server IP** 為準。iOS 系統層背景網域已於文末另列並排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `mfp.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS3462 / FET | **App 自家事件遙測收集**（`/post/collect`） |
-| `postserv.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS3462 / FET | 郵務／i郵箱交易後端（`pstmail`） |
-| `www.postmall.com.tw` | 中華郵政（郵政商城 ePost） | 台灣 | 否（電信機房） | FET | 郵政商城／首頁工具列（`/epost/`） |
-| `emap.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS3462 / FET | 據點查詢地圖後端＋自有圖磚（`tu_m`） |
-| `www.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS3462 | 官方網站＋郵遞區號／地址查詢 |
-| `mpost.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | FET / AS9924 | 行動郵局服務（本次僅 CONNECT、未解密） |
-| `mpush.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS7482 / FET | 推播通知（本次僅 CONNECT、未解密） |
-| `ipost.post.gov.tw` | 中華郵政 | 台灣 | 否（電信機房） | AS9924 | i 郵箱（本次未觸發，沿用初測） |
-| `sslserver.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | SSL 憑證服務 |
-| `evsslocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | EV SSL 憑證狀態查詢（OCSP） |
-| `rootocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | 根憑證狀態查詢（OCSP） |
-| `tile.tracestrack.com` | Tracestrack（地圖圖磚） | 海外節點 | 是（Cloudflare） | AS13335 | 據點查詢地圖圖磚 |
-| `ssl.google-analytics.com` | Google | 海外節點 | 是 | AS15169 | 使用行為分析 |
-| `app-analytics-services.com` | Google | 台灣（節點） | 是 | AS15169 | App 使用分析 |
-| `fonts.gstatic.com` | Google | 海外節點 | 是 | AS15169 | 網頁字型 |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `mfp.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS3462（中華電信 HiNet） / FET |  | **App 自家事件遙測收集**（`/post/collect`） |
+| `postserv.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS3462（中華電信 HiNet） / FET |  | 郵務／i郵箱交易後端（`pstmail`） |
+| `www.postmall.com.tw` | 中華郵政（郵政商城 ePost） | TW | 否（電信機房） | FET |  | 郵政商城／首頁工具列（`/epost/`） |
+| `emap.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS3462（中華電信 HiNet） / FET |  | 據點查詢地圖後端＋自有圖磚（`tu_m`） |
+| `www.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS3462（中華電信 HiNet） |  | 官方網站＋郵遞區號／地址查詢 |
+| `mpost.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | FET / AS9924（台灣固網） |  | 行動郵局服務（本次僅 CONNECT、未解密） |
+| `mpush.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS7482（數位聯合 Seednet） / FET |  | 推播通知（本次僅 CONNECT、未解密） |
+| `ipost.post.gov.tw` | 中華郵政 | TW | 否（電信機房） | AS9924（台灣固網） |  | i 郵箱（本次未觸發，沿用初測） |
+| `sslserver.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） |  | SSL 憑證服務 |
+| `evsslocsp.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） |  | EV SSL 憑證狀態查詢（OCSP） |
+| `rootocsp.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） |  | 根憑證狀態查詢（OCSP） |
+| `tile.tracestrack.com` | Tracestrack（地圖圖磚） | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 據點查詢地圖圖磚 |
+| `ssl.google-analytics.com` | Google | TW | 是 | AS15169（Google） | ✓ | 使用行為分析 |
+| `app-analytics-services.com` | Google | TW | 是 | AS15169（Google） | ✓ | App 使用分析 |
+| `fonts.gstatic.com` | Google | TW | 是 | AS15169（Google） | ✓ | 網頁字型 |
 
 > **國家判定說明（以本次實際連線 IP 為準）**：中華郵政各 `*.post.gov.tw` 與郵政商城 `www.postmall.com.tw` 皆連台灣電信業者機房，跨多家業者多重連線——`124.219.11x.x` 經 whois 為 **遠傳電信（FET，原亞太電信 APBB 於 2024 併入）**、`203.69.145.x` 為 **中華電信 HiNet（AS3462）**、另有台灣固網（AS9924）、數位聯合 Seednet（AS7482），皆位於台灣境內、非公有雲。身分憑證服務（TWCA，AS9924）亦為台灣。`tile.tracestrack.com`（地圖圖磚，Cloudflare）與 Google 分析／字型（AS15169）採 Anycast，連線節點雖多在台灣，營運商為海外雲端，出境記「可能」。此外本次見 `google.com`／`calendar.google.com` 之 WebDAV（`REPORT`／`PROPFIND`）請求，為 **iOS 行事曆對 Google 帳號之 CalDAV 同步**，非行動郵局流量，已排除。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 中華郵政核心服務（`*.post.gov.tw`，台灣，非公有雲）
 
@@ -96,9 +98,9 @@ title: 郵局（中華郵政）
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| sslserver.twca.com.tw | 219.87.64.186 | AS9924 | TW |
-| evsslocsp.twca.com.tw | 219.87.64.165 | AS9924 | TW |
-| rootocsp.twca.com.tw | 219.87.64.165 | AS9924 | TW |
+| sslserver.twca.com.tw | 219.87.64.186 | AS9924（台灣固網） | TW |
+| evsslocsp.twca.com.tw | 219.87.64.165 | AS9924（台灣固網） | TW |
+| rootocsp.twca.com.tw | 219.87.64.165 | AS9924（台灣固網） | TW |
 
 ### 3. 地圖圖磚（Tracestrack，海外雲端）
 
@@ -110,7 +112,7 @@ title: 郵局（中華郵政）
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| tile.tracestrack.com | 104.21.9.167 | AS13335 | 海外節點 |
+| tile.tracestrack.com | 104.21.9.167 | AS13335（Cloudflare） | 海外節點 |
 
 ### 4. Google 分析與字型（海外雲端）
 
@@ -122,9 +124,9 @@ title: 郵局（中華郵政）
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| ssl.google-analytics.com | 64.233.188.97 | AS15169 | 海外節點 |
-| app-analytics-services.com | 74.125.204.100 | AS15169 | 台灣（節點） |
-| fonts.gstatic.com | 172.253.155.94 | AS15169 | 海外節點 |
+| ssl.google-analytics.com | 64.233.188.97 | AS15169（Google） | 海外節點 |
+| app-analytics-services.com | 74.125.204.100 | AS15169（Google） | 台灣（節點） |
+| fonts.gstatic.com | 172.253.155.94 | AS15169（Google） | 海外節點 |
 
 ### 5. iOS 系統背景網域（非 App 業務流量，已排除）
 

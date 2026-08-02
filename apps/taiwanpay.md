@@ -28,28 +28,30 @@ title: 台灣行動支付（台灣Pay）
 
 以下依**所屬單位／角色**分為六類彙整（廣告與追蹤類網域眾多，於分類中列舉代表）。iOS 系統層背景網域已於文末另列並排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `www.taiwanpay.com.tw` | 臺灣行動支付 TWMP | 台灣 | 部分（Akamai 前端） | AS3462 / AS20940 | 台灣Pay 官方服務 |
-| `www.twmp.com.tw` | 臺灣行動支付 TWMP | 台灣 | 否（電信機房） | AS3462 | 官方網站 |
-| `merchant.twmp.com.tw` | 臺灣行動支付 TWMP | 台灣 | 否（電信機房） | AS3462 / AS9919 | 特約商店服務 |
-| `wsp.twmp.com.tw` | 臺灣行動支付 TWMP | 台灣 | 否（電信機房） | AS3462 | 支付服務端點 |
-| `twmp.edenred.com.tw` | Edenred（好券 Buy 電商） | 台灣 | 是（AWS） | AS16509 | 即享券電商 |
-| `edenred-multisite.s3.ap-northeast-1.amazonaws.com` | Edenred（AWS S3） | **日本（東京）** | **是（AWS）** | AS16509 | 電商靜態資源儲存 |
-| `www.lifemap.com.tw` | Lifemap 人生（點燈祈福） | 台灣（節點） | 是（AWS） | AS16509 | 點燈祈福 webview |
-| `api.map8.zone` | map8 地圖 | 台灣（節點） | 是（Google Cloud） | AS396982 | 地圖／定位 API |
-| `ad.doubleclick.net`／`pagead2.googlesyndication.com` 等 | Google 廣告（AdSense） | 台灣（節點） | 是 | AS15169 | 廣告聯播 |
-| `www.google-analytics.com`／`app-measurement.com`／`googletagmanager` | Google 分析 | 台灣（節點） | 是 | AS15169 | 使用行為分析 |
-| `connect.facebook.net`／`www.facebook.com` | Meta | 台灣（節點） | 是 | AS32934 | FB Pixel／SDK |
-| `s.yimg.com` | Yahoo | 台灣（節點） | 是 | AS24376 | Yahoo 資源／廣告 |
-| `sp.analytics.yahoo.com` | Yahoo（AWS） | 美國 | 是（AWS） | AS16509 | Yahoo 分析追蹤 |
-| `tr.line.me` | LINE（LINE Tag） | **日本** | 是 | AS38631 | LINE 轉換追蹤 |
-| `d.line-scdn.net` | LINE（CDN） | 台灣（節點） | 是（Akamai） | AS16625 | LINE 靜態資源 |
-| `api.revenuecat.com` | RevenueCat（訂閱管理） | 美國 | 是（AWS） | AS16509 | 訂閱／購買管理 SaaS |
-| `fh-…ecs.us-west-2.on.aws` | Amazon AWS（us-west-2） | **美國** | **是（AWS）** | AS16509 | 用途待確認之 AWS 端點 |
-| `fonts.gstatic.com`／`fonts.googleapis.com`／`ssl.gstatic.com` | Google | 台灣（節點） | 是 | AS15169 | 網頁字型 |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `www.taiwanpay.com.tw` | 臺灣行動支付 TWMP | TW | 部分（Akamai 前端） | AS3462（中華電信 HiNet） / AS20940（Akamai） |  | 台灣Pay 官方服務 |
+| `www.twmp.com.tw` | 臺灣行動支付 TWMP | TW | 否（電信機房） | AS3462（中華電信 HiNet） |  | 官方網站 |
+| `merchant.twmp.com.tw` | 臺灣行動支付 TWMP | TW | 否（電信機房） | AS3462（中華電信 HiNet） / AS9919（新世紀資通） |  | 特約商店服務 |
+| `wsp.twmp.com.tw` | 臺灣行動支付 TWMP | TW | 否（電信機房） | AS3462（中華電信 HiNet） |  | 支付服務端點 |
+| `twmp.edenred.com.tw` | Edenred（好券 Buy 電商） | TW | 是（AWS） | AS16509（AWS） |  | 即享券電商 |
+| `edenred-multisite.s3.ap-northeast-1.amazonaws.com` | Edenred（AWS S3） | JP | **是（AWS）** | AS16509（AWS） |  | 電商靜態資源儲存 |
+| `www.lifemap.com.tw` | Lifemap 人生（點燈祈福） | TW | 是（AWS） | AS16509（AWS） | ✓ | 點燈祈福 webview |
+| `api.map8.zone` | map8 地圖 | TW | 是（Google Cloud） | AS396982（Google Cloud） | ✓ | 地圖／定位 API |
+| `ad.doubleclick.net`／`pagead2.googlesyndication.com` 等 | Google 廣告（AdSense） | TW | 是 | AS15169（Google） | ✓ | 廣告聯播 |
+| `www.google-analytics.com`／`app-measurement.com`／`googletagmanager` | Google 分析 | TW | 是 | AS15169（Google） | ✓ | 使用行為分析 |
+| `connect.facebook.net`／`www.facebook.com` | Meta | TW／US | 是 | AS32934（Meta） | ✓ | FB Pixel／SDK |
+| `s.yimg.com` | Yahoo | TW | 是 | AS24376（Yahoo） |  | Yahoo 資源／廣告 |
+| `sp.analytics.yahoo.com` | Yahoo（AWS） | TW | 是（AWS） | AS16509（AWS） |  | Yahoo 分析追蹤 |
+| `tr.line.me` | LINE（LINE Tag） | JP | 是 | AS38631（LINE） |  | LINE 轉換追蹤 |
+| `d.line-scdn.net` | LINE（CDN） | TW | 是（Akamai） | AS16625（Akamai） |  | LINE 靜態資源 |
+| `api.revenuecat.com` | RevenueCat（訂閱管理） | TW | 是（AWS） | AS16509（AWS） | ✓ | 訂閱／購買管理 SaaS |
+| `fh-…ecs.us-west-2.on.aws` | Amazon AWS（us-west-2） | **美國** | **是（AWS）** | AS16509（AWS） |  | 用途待確認之 AWS 端點 |
+| `fonts.gstatic.com`／`fonts.googleapis.com`／`ssl.gstatic.com` | Google | TW | 是 | AS15169（Google） | ✓ | 網頁字型 |
 
-> **國家判定說明**：TWMP 支付核心網域（`taiwanpay.com.tw`、`twmp.com.tw`、`merchant`、`wsp`）解析至台灣電信機房（**AS3462 中華電信 HiNet**，部分經 Akamai AS20940 台灣節點、`merchant` 另有 AS9919 新世紀資通），皆台灣境內。境外實體節點包括：Edenred 電商 S3（`edenred-multisite.s3.ap-northeast-1`）位於 **AWS 東京（日本）**；`tr.line.me`（LINE Tag）位於 **日本**；`sp.analytics.yahoo.com`、`api.revenuecat.com`、`fh-…on.aws` 位於 **AWS 美國**。Google、Meta、Yahoo、LINE CDN 等採 Anycast，連線節點多在台灣，營運商為海外雲端，出境記「可能」。
+> **國家判定說明**：TWMP 支付核心網域（`taiwanpay.com.tw`、`twmp.com.tw`、`merchant`、`wsp`）解析至台灣電信機房（**AS3462 中華電信 HiNet**，部分經 Akamai AS20940 台灣節點、`merchant` 另有 AS9919 新世紀資通），皆台灣境內。境外實體節點包括：Edenred 電商 S3（`edenred-multisite.s3.ap-northeast-1`）位於 **AWS 東京（日本）**；`tr.line.me`（LINE Tag）位於 **日本**；`fh-…on.aws` 位於 **AWS 美國**。`api.revenuecat.com` 經 mtr 443 為 CloudFront **tpe54（台灣）**。Google、Meta、Yahoo、LINE CDN 等採 Anycast，連線節點多在台灣，營運商為海外雲端，出境記「可能」。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 支付核心服務（TWMP，台灣，非公有雲）⭐
 
@@ -62,10 +64,10 @@ title: 台灣行動支付（台灣Pay）
 
 | 網域（埠） | 連線 IP | ASN | 國家 |
 |------|---------|-----|------|
-| www.twmp.com.tw:443 | 118.163.83.170 | AS3462 | TW |
-| wsp.twmp.com.tw:8743／9143 | 60.248.93.69 | AS3462 | TW |
-| merchant.twmp.com.tw:9043／8343／9898 | 210.242.162.127 | AS3462 / AS9919 | TW |
-| www.taiwanpay.com.tw:443 | 203.69.81.136 | AS3462 / AS20940 | TW |
+| www.twmp.com.tw:443 | 118.163.83.170 | AS3462（中華電信 HiNet） | TW |
+| wsp.twmp.com.tw:8743／9143 | 60.248.93.69 | AS3462（中華電信 HiNet） | TW |
+| merchant.twmp.com.tw:9043／8343／9898 | 210.242.162.127 | AS3462（中華電信 HiNet） / AS9919（新世紀資通） | TW |
+| www.taiwanpay.com.tw:443 | 203.69.81.136 | AS3462（中華電信 HiNet） / AS20940（Akamai） | TW |
 
 （本次 `wsp`／`merchant` 之連線 IP 與初測略有不同、且使用非標準高埠，惟 whois 仍為中華電信 HiNet／新世紀資通，台灣境內。）
 
@@ -81,10 +83,10 @@ AS3462＝中華電信 HiNet；AS9919＝新世紀資通；AS20940＝Akamai（台�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| twmp.edenred.com.tw | 52.223.34.133 | AS16509 | TW |
-| edenred-multisite.s3.ap-northeast-1.amazonaws.com | 3.5.155.164 | AS16509 | JP |
-| www.lifemap.com.tw | 65.9.180.102 | AS16509 | TW |
-| api.map8.zone | 35.194.211.228 | AS396982 | TW |
+| twmp.edenred.com.tw | 52.223.34.133 | AS16509（AWS） | TW |
+| edenred-multisite.s3.ap-northeast-1.amazonaws.com | 3.5.155.164 | AS16509（AWS） | JP |
+| www.lifemap.com.tw | 65.9.180.102 | AS16509（AWS） | TW |
+| api.map8.zone | 35.194.211.228 | AS396982（Google Cloud） | TW |
 
 ### 3. 廣告與追蹤第三方（Google AdSense／Meta／Yahoo／LINE）⚠️
 
@@ -100,11 +102,11 @@ AS3462＝中華電信 HiNet；AS9919＝新世紀資通；AS20940＝Akamai（台�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| ad.doubleclick.net | 64.233.189.148 | AS15169 | TW（節點） |
-| connect.facebook.net | 31.13.87.5 | AS32934 | TW（節點） |
-| s.yimg.com | 180.222.109.252 | AS24376 | TW（節點） |
-| sp.analytics.yahoo.com | 180.222.109.252 | AS24376 | **TW（本次為 Yahoo 台灣節點）** |
-| tr.line.me | 147.92.191.92 | AS38631 | JP |
+| ad.doubleclick.net | 64.233.189.148 | AS15169（Google） | TW（節點） |
+| connect.facebook.net | 31.13.87.5 | AS32934（Meta） | TW（節點） |
+| s.yimg.com | 180.222.109.252 | AS24376（Yahoo） | TW（節點） |
+| sp.analytics.yahoo.com | 180.222.109.252 | AS24376（Yahoo） | **TW（本次為 Yahoo 台灣節點）** |
+| tr.line.me | 147.92.191.92 | AS38631（LINE） | JP |
 
 > **本次複測差異**：(1) `sp.analytics.yahoo.com` 本次解析至 Yahoo 台灣節點（`180.222.109.252`），與初測之美國 IP 不同（Anycast，營運商仍為海外）。(2) 本次 Google 廣告類**未見** `ad.doubleclick.net`／`pagead2.googlesyndication.com`／`app-measurement.com`／`firebaseinstallations`，實際出現者為 **AdSense for Search 一組**（`cse.google.com`、`syndicatedsearch.goog`、`www.adsensecustomsearchads.com`、`ep1/ep2.adtrafficquality.google`、`clients1.google.com`）＋ `googletagmanager`／`analytics.google.com`。此差異可能與本次操作路徑及未解密有關。
 
@@ -117,8 +119,8 @@ AS3462＝中華電信 HiNet；AS9919＝新世紀資通；AS20940＝Akamai（台�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| api.revenuecat.com | 13.226.251.11（本次未再現） | AS16509 | US |
-| fh-…ecs.us-west-2.on.aws | 16.147.119.161（本次仍見） | AS16509 | US |
+| api.revenuecat.com | 13.226.251.11（本次未再現） | AS16509（AWS） | US |
+| fh-…ecs.us-west-2.on.aws | 16.147.119.161（本次仍見） | AS16509（AWS） | US |
 
 （`fh-118116076e9a4c2a96a99fbb70bea2a0.ecs.us-west-2.on.aws` 本次仍出現一次，連 AWS 美國 `us-west-2`；`api.revenuecat.com` 本次未再出現。此 hash 命名端點用途仍待確認。）
 

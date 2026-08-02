@@ -26,33 +26,35 @@ title: Google 地圖
 
 ## 網域分析
 
-Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast，連線節點多解析至美國，部分為台灣、澳洲節點。以下依**功能角色**分類。
+Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast，以 mtr TCP/443 判定連線節點多為**台灣 Anycast**（約 5–10ms）。以下依**功能角色**分類。
 
-| 類別 | 代表網域 | 所屬 | 節點國家 | ASN | 用途 |
-|------|----------|------|----------|-----|------|
-| 地圖核心 | `mobilemaps.googleapis.com`、`mobilemaps-pa-gz.googleapis.com`、`maps.google.com`、`maps.gstatic.com` | Google | 美國／台灣（Anycast） | AS15169 | 地圖圖磚與向量資料 |
-| 位置與記錄 ⚠️ | `locationhistory-pa.googleapis.com`、`streetviewpixels-pa.googleapis.com`、`mapsphotoupload.googleapis.com` | Google | 美國 | AS15169 | 位置記錄（時間軸）、街景、相片上傳 |
-| Google 帳號 | `accounts.google.com`、`oauth2.googleapis.com`、`oauthaccountmanager.googleapis.com`、`people-pa.googleapis.com` | Google | 美國／台灣 | AS15169 | 登入、帳號、聯絡人 |
-| 使用者內容／圖片 | `lh3~lh6.googleusercontent.com`、`gz0.googleusercontent.com`、`googlehosted.l.googleusercontent.com` | Google | 美國／台灣 | AS15169 | 地點相片、使用者內容 |
-| 影音內容 | `rr*.googlevideo.com`、`manifest.googlevideo.com` | Google | 美國（Anycast） | AS15169 | 影片內容傳遞 |
-| 服務與遙測 | `growth-pa`、`notifications-pa`、`feedback-pa.googleapis.com`、`play.googleapis.com`、`app-analytics-services.com` | Google | 美國 | AS15169 | 推播、回饋、分析、Play 服務 |
-| 廣告與字型 | `tpc.googlesyndication.com`、`fonts.gstatic.com`、`www.gstatic.com`、`ssl.gstatic.com` | Google | 美國／台灣 | AS15169 | Google 廣告、字型與靜態資源 |
+| 類別 | 代表網域 | 所屬 | 節點國家 | ASN | Anycast | 用途 |
+|------|------|------|------|------|------|------|
+| 地圖核心 | `mobilemaps.googleapis.com`、`mobilemaps-pa-gz.googleapis.com`、`maps.google.com`、`maps.gstatic.com` | Google | TW | AS15169（Google） | ✓ | 地圖圖磚與向量資料 |
+| 位置與記錄 ⚠️ | `locationhistory-pa.googleapis.com`、`streetviewpixels-pa.googleapis.com`、`mapsphotoupload.googleapis.com` | Google | TW | AS15169（Google） | ✓ | 位置記錄（時間軸）、街景、相片上傳 |
+| Google 帳號 | `accounts.google.com`、`oauth2.googleapis.com`、`oauthaccountmanager.googleapis.com`、`people-pa.googleapis.com` | Google | TW | AS15169（Google） | ✓ | 登入、帳號、聯絡人 |
+| 使用者內容／圖片 | `lh3~lh6.googleusercontent.com`、`gz0.googleusercontent.com`、`googlehosted.l.googleusercontent.com` | Google | TW | AS15169（Google） | ✓ | 地點相片、使用者內容 |
+| 影音內容 | `rr*.googlevideo.com`、`manifest.googlevideo.com` | Google | TW | AS15169（Google） | ✓ | 影片內容傳遞 |
+| 服務與遙測 | `growth-pa`、`notifications-pa`、`feedback-pa.googleapis.com`、`play.googleapis.com`、`app-analytics-services.com` | Google | TW | AS15169（Google） | ✓ | 推播、回饋、分析、Play 服務 |
+| 廣告與字型 | `tpc.googlesyndication.com`、`fonts.gstatic.com`、`www.gstatic.com`、`ssl.gstatic.com` | Google | TW | AS15169（Google） | ✓ | Google 廣告、字型與靜態資源 |
 
-> **國家判定說明**：所有上述網域 ASN 均為 **AS15169（Google LLC）**，採 Anycast。SRTT 記錄中連線節點以**美國**為主（174 筆），部分解析至**台灣**（11 筆）與澳洲（15 筆，Google Anycast 常見之地理定位）。因營運商為 Google（美國），資料出境記「是（Google 美國）」，屬使用外商服務之本質。
+> **國家判定說明**：所有上述網域 ASN 均為 **AS15169（Google LLC）**，採 Anycast。本次以 **`mtr --tcp --port 443`** 重測，代表網域終點延遲約 **5–10ms**，判定連線節點為 **TW（Google Anycast）**；SRTT 地理標籤可能顯示美國／澳洲，屬 Anycast 註冊地差異。因營運商為 Google（美國），資料出境記「是（Google 美國）」，屬使用外商服務之本質。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 地圖核心與位置資料（Google，美國）⚠️
 
 * **域名性質**：`mobilemaps.googleapis.com`／`mobilemaps-pa-gz.googleapis.com`（行動地圖向量資料）、`maps.google.com`／`maps.gstatic.com`（地圖資源）、`streetviewpixels-pa.googleapis.com`（街景）、**`locationhistory-pa.googleapis.com`（位置記錄／時間軸）**、`mapsphotoupload.googleapis.com`（相片上傳）
-* **地理位置**：AS15169（Google），節點多在美國，部分台灣 Anycast
+* **地理位置**：AS15169（Google），mtr 443 判定為台灣 Anycast（約 5–10ms）
 * **角色**：地圖繪製、導航、街景、地點相片，以及**位置記錄（Location History／時間軸）**
 * **資料特性**：涉及**高度敏感之位置資料**——即時定位、移動軌跡、地點搜尋；`locationhistory-pa` 更關聯到帳號層級之長期位置記錄。此類資料由 Google（美國）處理，屬使用 Google 地圖之本質
 * **DNS 解析結果**（代表值）：
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| streetviewpixels-pa.googleapis.com | 216.239.38.135 | AS15169 | US |
-| locationhistory-pa.googleapis.com | 172.217.117.4 | AS15169 | US |
-| maps.gstatic.com | 142.250.192.131 | AS15169 | TW（節點） |
+| streetviewpixels-pa.googleapis.com | 216.239.38.135 | AS15169（Google） | TW |
+| locationhistory-pa.googleapis.com | 172.217.117.4 | AS15169（Google） | TW |
+| maps.gstatic.com | 142.250.192.131 | AS15169（Google） | TW（節點） |
 
 ### 2. Google 帳號與服務（Google，美國）
 
@@ -63,9 +65,9 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| accounts.google.com | 64.233.188.84 | AS15169 | TW（節點） |
-| oauth2.googleapis.com | 142.251.170.95 | AS15169 | TW（節點） |
-| people-pa.googleapis.com | 172.217.112.4 | AS15169 | US |
+| accounts.google.com | 64.233.188.84 | AS15169（Google） | TW（節點） |
+| oauth2.googleapis.com | 142.251.170.95 | AS15169（Google） | TW（節點） |
+| people-pa.googleapis.com | 172.217.112.4 | AS15169（Google） | TW |
 
 ### 3. 內容、影音、廣告與字型（Google，美國）
 
@@ -76,9 +78,9 @@ Google 地圖之網域**幾乎全部隸屬 Google（AS15169）**，採 Anycast�
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| lh5.googleusercontent.com | 142.250.204.33 | AS15169 | TW（節點） |
-| manifest.googlevideo.com | 142.250.204.46 | AS15169 | US／TW |
-| tpc.googlesyndication.com | 142.250.77.193 | AS15169 | TW（節點） |
+| lh5.googleusercontent.com | 142.250.204.33 | AS15169（Google） | TW（節點） |
+| manifest.googlevideo.com | 142.250.204.46 | AS15169（Google） | US／TW |
+| tpc.googlesyndication.com | 142.250.77.193 | AS15169（Google） | TW（節點） |
 
 ### 4. iOS 系統背景網域（非 App 業務流量，已排除）
 

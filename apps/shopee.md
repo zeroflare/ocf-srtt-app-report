@@ -28,16 +28,18 @@ title: 蝦皮購物
 
 依**所屬服務／角色**分為六類。iOS 系統層背景網域已於文末排除。
 
-| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | 用途 |
-|------|----------|-----------|----------|-----|------|
-| 購物商城核心 | `shopee.tw`、`mall.shopee.tw` | Shopee Taiwan | 台灣 | AS131623 | 商城首頁／商品 |
-| 平台服務／API／追蹤 ⚠️ | `api.is.shopee.tw`、`ubt/ubta.tracking.shopee.tw`、`sv.shopee.tw`、`live.shopee.tw`、`data.cs.shopee.tw`、`help.shopee.tw`、`remote-config.gslb.sgw.shopeemobile.com` | **Shopee Singapore** | **新加坡** | AS138341 | API、行為追蹤、直播、設定、客服 |
-| ShopeePay 支付 ⚠️ | `pay.shopee.sg`、`api.fe.shopeepay.tw` | **Shopee Singapore** | **新加坡** | AS138341 | 支付 |
-| 內容 CDN | `deo.shopeemobile.com`、`cs.deo.shopeemobile.com`、`*.susercontent.com`、`deo.shopeesz.com` | Shopee（Akamai／AWS） | 台灣／美國 | AS20940 / AS16509 | 圖片、影音、靜態資源 |
-| Garena（Sea 集團） | `content.garena.com`、`cdngarenanow-a.akamaihd.net` | Garena（Sea） | 台灣／美國（Akamai） | AS20940 / AS3462 | 內容／遊戲關聯 |
-| 第三方追蹤 | `connect.facebook.net`、`analytics.google.com`、`ad.doubleclick.net`、`att-launches.appsflyersdk.com`、`crashlyticsreports-pa.googleapis.com` | Meta／Google／AppsFlyer | 台灣／美國 | AS32934 / AS15169 / AS16509 | 廣告、分析、歸因、當機回報 |
+| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | Anycast | 用途 |
+|------|------|------|------|------|------|------|
+| 購物商城核心 | `shopee.tw`、`mall.shopee.tw` | Shopee Taiwan | TW | AS131623（Shopee Taiwan） |  | 商城首頁／商品 |
+| 平台服務／API／追蹤 ⚠️ | `api.is.shopee.tw`、`ubt/ubta.tracking.shopee.tw`、`sv.shopee.tw`、`live.shopee.tw`、`data.cs.shopee.tw`、`help.shopee.tw`、`remote-config.gslb.sgw.shopeemobile.com` | **Shopee Singapore** | SG | AS138341（Shopee Singapore） |  | API、行為追蹤、直播、設定、客服 |
+| ShopeePay 支付 ⚠️ | `pay.shopee.sg`、`api.fe.shopeepay.tw` | **Shopee Singapore** | SG | AS138341（Shopee Singapore） |  | 支付 |
+| 內容 CDN | `deo.shopeemobile.com`、`cs.deo.shopeemobile.com`、`*.susercontent.com`、`deo.shopeesz.com` | Shopee（Akamai／AWS） | TW | AS20940（Akamai） / AS16509（AWS） |  | 圖片、影音、靜態資源 |
+| Garena（Sea 集團） | `content.garena.com`、`cdngarenanow-a.akamaihd.net` | Garena（Sea） | TW | AS20940（Akamai） / AS3462（中華電信 HiNet） | ✓ | 內容／遊戲關聯 |
+| 第三方追蹤 | `connect.facebook.net`、`analytics.google.com`、`ad.doubleclick.net`、`att-launches.appsflyersdk.com`、`crashlyticsreports-pa.googleapis.com` | Meta／Google／AppsFlyer | TW | AS32934（Meta） / AS15169（Google） / AS16509（AWS） | ✓ | 廣告、分析、歸因、當機回報 |
 
 > **國家判定說明**：蝦皮**自建網路**，判定明確。商城首頁（`shopee.tw`、`mall.shopee.tw`）解析至 **AS131623（Shopee Taiwan）**，台灣（`103.117.4.x`）。**但大量功能網域**——API（`api.is.shopee.tw`）、行為追蹤（`ubt/ubta.tracking.shopee.tw`）、直播（`live.shopee.tw`）、設定（`remote-config…sgw.shopeemobile.com`）、客服（`help.shopee.tw`）、以及 **ShopeePay 支付（`pay.shopee.sg`、`api.fe.shopeepay.tw`）**——均解析至 **AS138341（Shopee Singapore），新加坡**（`147.136.x.x`、`103.115.x.x`）。內容 CDN 經 Akamai（AS20940）之台灣節點與 AWS（AS16509）之美國節點。第三方（Meta、Google、AppsFlyer）採 Anycast，營運商為海外。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 購物商城核心（Shopee Taiwan，台灣）
 
@@ -49,8 +51,8 @@ title: 蝦皮購物
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| shopee.tw | 103.117.4.75 | AS131623 | TW |
-| mall.shopee.tw | 103.117.4.75 | AS131623 | TW |
+| shopee.tw | 103.117.4.75 | AS131623（Shopee Taiwan） | TW |
+| mall.shopee.tw | 103.117.4.75 | AS131623（Shopee Taiwan） | TW |
 
 ### 2. 平台服務、API 與行為追蹤（Shopee Singapore，新加坡）⚠️
 
@@ -62,11 +64,11 @@ title: 蝦皮購物
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| api.is.shopee.tw | 143.92.78.129 | AS138341 | SG |
-| ubt.tracking.shopee.tw | 147.136.146.190 | AS138341 | SG |
-| ubta.tracking.shopee.tw | 147.136.145.191 | AS138341 | SG |
-| live.shopee.tw | 147.136.145.192 | AS138341 | SG |
-| remote-config.gslb.sgw.shopeemobile.com | 143.92.88.140 | AS138341 | SG |
+| api.is.shopee.tw | 143.92.78.129 | AS138341（Shopee Singapore） | SG |
+| ubt.tracking.shopee.tw | 147.136.146.190 | AS138341（Shopee Singapore） | SG |
+| ubta.tracking.shopee.tw | 147.136.145.191 | AS138341（Shopee Singapore） | SG |
+| live.shopee.tw | 147.136.145.192 | AS138341（Shopee Singapore） | SG |
+| remote-config.gslb.sgw.shopeemobile.com | 143.92.88.140 | AS138341（Shopee Singapore） | SG |
 
 ### 3. ShopeePay 支付（Shopee Singapore，新加坡）⚠️
 
@@ -78,8 +80,8 @@ title: 蝦皮購物
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| pay.shopee.sg | 103.115.76.16 | AS138341 | SG |
-| api.fe.shopeepay.tw | 147.136.146.217 | AS138341 | SG |
+| pay.shopee.sg | 103.115.76.16 | AS138341（Shopee Singapore） | SG |
+| api.fe.shopeepay.tw | 147.136.146.217 | AS138341（Shopee Singapore） | SG |
 
 ### 4. 內容 CDN（Akamai／AWS）
 
@@ -103,7 +105,7 @@ title: 蝦皮購物
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| content.garena.com | 210.71.227.122 | AS20940 / AS3462 | TW（節點） |
+| content.garena.com | 210.71.227.122 | AS20940（Akamai） / AS3462（中華電信 HiNet） | TW（節點） |
 | cdngarenanow-a.akamaihd.net | 23.51.25.83 | AS20940（Akamai） | US（節點） |
 
 ### 6. 第三方廣告與追蹤（Meta／Google／AppsFlyer）⚠️
@@ -116,8 +118,8 @@ title: 蝦皮購物
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| connect.facebook.net | 31.13.87.5 | AS32934 | TW（節點） |
-| ad.doubleclick.net | 64.233.189.148 | AS15169 | US |
+| connect.facebook.net | 31.13.87.5 | AS32934（Meta） | TW（節點） |
+| ad.doubleclick.net | 64.233.189.148 | AS15169（Google） | US |
 | att-launches.appsflyersdk.com | 3.169.201.72 | AS16509（AWS） | US |
 
 ### 7. iOS 系統背景網域（非 App 業務流量，已排除）

@@ -28,16 +28,18 @@ title: 智生活
 
 依**所屬單位／角色**分為六類。iOS 系統層背景網域已於文末排除。
 
-| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | 用途 |
-|------|----------|-----------|----------|-----|------|
-| 自家後端（Google Cloud）⚠️ | `ecs`／`member-api`／`chatapi`／`notification`／`vip-subscription`／`ad`／`cdn`／`file.kingnetsmart.com.tw`、`api`／`access`／`urec.smartdaily.com.tw`、`www.dailypro.com.tw`、`link.knst.tw` | SmaDay／今網智慧（託管於 Google Cloud） | 美國（GCP，IP 註冊） | AS396982 | 會員、聊天、通知、訂閱、廣告、內容 API |
-| 台灣節點 | `img.smartdaily.com.tw` | SmaDay（HiNet） | 台灣 | AS3462 | 圖片資源 |
-| Firebase／推播 | `smartlife-3d231.firebaseio.com`、`firebaseremoteconfig`／`firebaseinstallations`／`fcmtoken`／`crashlyticsreports-pa.googleapis.com` | Google（Firebase） | 美國 | AS396982 / AS15169 | 即時資料庫、設定、推播、當機回報 |
-| 行為側錄 ⚠️ | `t.clarity.ms`、`c.clarity.ms`、`scripts.clarity.ms`、`www.clarity.ms` | Microsoft（Clarity） | 美國／新加坡 | AS8075 | 使用者 session 側錄／熱區分析 |
-| 廣告與追蹤 ⚠️ | `*.smadex.com`、`securepubads`／`pagead2.googlesyndication`／`doubleclick`／`adtrafficquality`、`c.bing.com`、`connect.facebook.net`／`graph.facebook.com`、`analytics.google.com`／`googletagmanager` | Smadex／Google／微軟／Meta | 美國／台灣 | AS14618 / AS15169 / AS8075 / AS32934 | 程式化廣告、廣告聯播、分析 |
-| 簡訊／監控 | `mobile.infobip.com`、`o4504…ingest.sentry.io` | Infobip（英國）／Sentry | 英國／美國 | AS43009 / AS396982 | 簡訊／OTP、錯誤監控 |
+| 類別 | 代表網域 | 所屬／營運 | 節點國家 | ASN | Anycast | 用途 |
+|------|------|------|------|------|------|------|
+| 自家後端（Google Cloud）⚠️ | `ecs`／`member-api`／`chatapi`／`notification`／`vip-subscription`／`ad`／`cdn`／`file.kingnetsmart.com.tw`、`api`／`access`／`urec.smartdaily.com.tw`、`www.dailypro.com.tw`、`link.knst.tw` | SmaDay／今網智慧（託管於 Google Cloud） | TW（GCP 邊緣；IP 註冊 US） | AS396982（Google Cloud） | ✓ | 會員、聊天、通知、訂閱、廣告、內容 API |
+| 台灣節點 | `img.smartdaily.com.tw` | SmaDay（HiNet） | TW | AS3462（中華電信 HiNet） |  | 圖片資源 |
+| Firebase／推播 | `smartlife-3d231.firebaseio.com`、`firebaseremoteconfig`／`firebaseinstallations`／`fcmtoken`／`crashlyticsreports-pa.googleapis.com` | Google（Firebase） | TW | AS396982（Google Cloud） / AS15169（Google） | ✓ | 即時資料庫、設定、推播、當機回報 |
+| 行為側錄 ⚠️ | `t.clarity.ms`、`c.clarity.ms`、`scripts.clarity.ms`、`www.clarity.ms` | Microsoft（Clarity） | TW／HK／JP | AS8075（Microsoft） |  | 使用者 session 側錄／熱區分析 |
+| 廣告與追蹤 ⚠️ | `*.smadex.com`、`securepubads`／`pagead2.googlesyndication`／`doubleclick`／`adtrafficquality`、`c.bing.com`、`connect.facebook.net`／`graph.facebook.com`、`analytics.google.com`／`googletagmanager` | Smadex／Google／微軟／Meta | TW／US | AS14618（AWS） / AS15169（Google） / AS8075（Microsoft） / AS32934（Meta） | ✓ | 程式化廣告、廣告聯播、分析 |
+| 簡訊／監控 | `mobile.infobip.com`、`o4504…ingest.sentry.io` | Infobip（英國）／Sentry | GB／TW | AS43009（Infobip） / AS396982（Google Cloud） | ✓ | 簡訊／OTP、錯誤監控 |
 
 > **國家判定說明**：智生活自家網域（`*.kingnetsmart.com.tw`、`api`／`access`／`urec.smartdaily.com.tw`、`www.dailypro.com.tw`、`link.knst.tw`）ASN 均為 **AS396982（Google Cloud Platform）**，連線 IP（`34.x`／`35.x`）**註冊於美國**——即**託管於 Google 公有雲、非台灣自建機房**（GCP 全球負載平衡 IP 雖可能路由至亞洲區域，惟營運於 Google 公有雲）。唯一台灣節點為 `img.smartdaily.com.tw`（AS3462 HiNet）。第三方中，**Microsoft Clarity（`clarity.ms`，AS8075）位於美國／新加坡**、**Smadex（`smadex.com`）位於美國**、**Infobip（`infobip.com`，AS43009）位於英國**，其餘 Google／Meta 採 Anycast，營運商為海外。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 自家後端（SmaDay／今網智慧，託管於 Google Cloud 美國）⚠️
 
@@ -67,7 +69,7 @@ title: 智生活
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
 | smartlife-3d231.firebaseio.com | 34.120.160.131 | AS396982（GCP） | US |
-| fcmtoken.googleapis.com | 172.217.112.4 | AS15169 | US |
+| fcmtoken.googleapis.com | 172.217.112.4 | AS15169（Google） | US |
 
 ### 3. 行為側錄：Microsoft Clarity（美國）⚠️
 
@@ -79,8 +81,8 @@ title: 智生活
 
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
-| t.clarity.ms | 20.80.37.232 | AS8075 | US |
-| scripts.clarity.ms | 150.171.110.70 | AS8075 | US |
+| t.clarity.ms | 20.80.37.232 | AS8075（Microsoft） | US |
+| scripts.clarity.ms | 150.171.110.70 | AS8075（Microsoft） | US |
 
 ### 4. 廣告與追蹤（Smadex／Google／Bing／Meta）⚠️
 
@@ -93,8 +95,8 @@ title: 智生活
 | 網域 | 解析 IP | ASN | 國家 |
 |------|---------|-----|------|
 | br-trk.smadex.com | 13.219.29.64 | AS14618（AWS） | US |
-| securepubads.g.doubleclick.net | 142.250.192.130 | AS15169 | US |
-| c.bing.com | 150.171.27.10 | AS8075 | US |
+| securepubads.g.doubleclick.net | 142.250.192.130 | AS15169（Google） | US |
+| c.bing.com | 150.171.27.10 | AS8075（Microsoft） | US |
 
 ### 5. 簡訊與錯誤監控（Infobip／Sentry）
 

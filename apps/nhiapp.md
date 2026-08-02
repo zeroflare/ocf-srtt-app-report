@@ -28,35 +28,37 @@ title: 健保快易通
 
 以下依**所屬單位／角色**分為六類彙整，國家與雲端歸屬以本次 HAR 內**實際連線的 server IP** 為準。iOS 系統層背景網域（Apple 定位／推播／App Store）非 App 業務流量，已於文末另列並排除。
 
-| 網域 | 所屬單位 | 國家 | 雲端 | ASN | 主要用途 |
-|------|----------|------|------|-----|----------|
-| `myhealthbank.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健康存摺（就醫用藥／檢驗紀錄） |
-| `mhbdata2.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健康存摺資料 |
-| `vhc.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 虛擬健保卡 |
-| `med.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 醫療／就醫相關服務 |
-| `info.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健保資訊服務 |
-| `cloudicweb.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健保卡網路服務註冊 |
-| `etask.nhi.gov.tw` | 健保署（GSN） | 台灣 | 否（政府網路） | AS4782 | 健保署線上服務 |
-| `www.nhi.gov.tw` | 健保署（公開網站） | 台灣（節點） | **是（Cloudflare）** | AS13335 | 健保署官方網站（公開資訊） |
-| `mnogw.cht.com.tw` | 中華電信（行動） | 台灣 | 否（電信機房） | AS17421 | 行動電話門號認證 |
-| `login2.fetnet.net` | 遠傳電信 | 台灣 | 否（電信機房） | AS9674 | 行動電話門號認證 |
-| `mobileconnect.gtcloud.net.tw` | 關貿網路（代管於數位聯合 Seednet） | 台灣 | 否 | AS7482 | 行動身分識別／門號認證 |
-| `mid.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 | 行動身分識別 |
-| `rootocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 / AS3462 | 憑證狀態查詢（OCSP） |
-| `twcasslocsp.twca.com.tw` | 臺灣網路認證 TWCA | 台灣 | 否（CA 機房） | AS9924 / AS3462 | SSL 憑證狀態查詢（OCSP） |
-| `wmts.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | 台灣 | 否（政府機房） | AS7539 | 就醫院所地圖圖磚 |
-| `api.tgos.tw` | 內政部 TGOS 地圖服務 | 台灣（節點） | **是（Google Cloud）** | AS396982 | 地圖／定位 API |
-| `www.google-analytics.com` | Google | 台灣（節點） | 是 | AS15169 | 使用行為分析 |
-| `firebaselogging-pa.googleapis.com` | Google（Firebase） | 台灣（節點） | 是 | AS15169 | Firebase 事件記錄 |
-| `app-analytics-services.com` | Google | 台灣（節點） | 是 | AS15169 | App 使用分析 |
-| `www.googletagmanager.com` | Google | 台灣（節點） | 是 | AS15169 | 代碼／追蹤管理 |
-| `fcmtoken.googleapis.com` | Google（FCM） | 台灣（節點） | 是 | AS15169 | 推播 Token |
-| `device-provisioning.googleapis.com` | Google（FCM） | 台灣（節點） | 是 | AS15169 | 推播裝置註冊 |
-| `www.google.com` | Google | 台灣（節點） | 是 | AS15169 | Google 一般服務 |
-| `challenges.cloudflare.com` | Cloudflare（Turnstile） | 台灣（節點） | 是（Cloudflare） | AS13335 | 公開網站人機驗證（bot 挑戰） |
-| `www.jkos.com` | 街口網絡（台灣電信網路 TTN 代管） | 台灣 | 否 | AS係TTN | 健保費線上繳費（街口支付選項） |
+| 網域 | 所屬單位 | 國家 | 雲端 | ASN | Anycast | 主要用途 |
+|------|------|------|------|------|------|------|
+| `myhealthbank.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 健康存摺（就醫用藥／檢驗紀錄） |
+| `mhbdata2.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 健康存摺資料 |
+| `vhc.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 虛擬健保卡 |
+| `med.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 醫療／就醫相關服務 |
+| `info.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 健保資訊服務 |
+| `cloudicweb.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 健保卡網路服務註冊 |
+| `etask.nhi.gov.tw` | 健保署（GSN） | TW | 否（政府網路） | AS4782（GSN） |  | 健保署線上服務 |
+| `www.nhi.gov.tw` | 健保署（公開網站） | TW | **是（Cloudflare）** | AS13335（Cloudflare） | ✓ | 健保署官方網站（公開資訊） |
+| `mnogw.cht.com.tw` | 中華電信（行動） | TW | 否（電信機房） | AS17421（中華電信行動） |  | 行動電話門號認證 |
+| `login2.fetnet.net` | 遠傳電信 | TW | 否（電信機房） | AS9674（遠傳電信） |  | 行動電話門號認證 |
+| `mobileconnect.gtcloud.net.tw` | 關貿網路（代管於數位聯合 Seednet） | TW | 否 | AS7482（數位聯合 Seednet） |  | 行動身分識別／門號認證 |
+| `mid.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） |  | 行動身分識別 |
+| `rootocsp.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） / AS3462（中華電信 HiNet） |  | 憑證狀態查詢（OCSP） |
+| `twcasslocsp.twca.com.tw` | 臺灣網路認證 TWCA | TW | 否（CA 機房） | AS9924（台灣固網） / AS3462（中華電信 HiNet） |  | SSL 憑證狀態查詢（OCSP） |
+| `wmts.nlsc.gov.tw` | 內政部國土測繪中心（國網中心） | TW | 否（政府機房） | AS7539（國網中心） |  | 就醫院所地圖圖磚 |
+| `api.tgos.tw` | 內政部 TGOS 地圖服務 | TW | **是（Google Cloud）** | AS396982（Google Cloud） | ✓ | 地圖／定位 API |
+| `www.google-analytics.com` | Google | TW | 是 | AS15169（Google） | ✓ | 使用行為分析 |
+| `firebaselogging-pa.googleapis.com` | Google（Firebase） | TW | 是 | AS15169（Google） | ✓ | Firebase 事件記錄 |
+| `app-analytics-services.com` | Google | TW | 是 | AS15169（Google） | ✓ | App 使用分析 |
+| `www.googletagmanager.com` | Google | TW | 是 | AS15169（Google） | ✓ | 代碼／追蹤管理 |
+| `fcmtoken.googleapis.com` | Google（FCM） | TW | 是 | AS15169（Google） | ✓ | 推播 Token |
+| `device-provisioning.googleapis.com` | Google（FCM） | TW | 是 | AS15169（Google） | ✓ | 推播裝置註冊 |
+| `www.google.com` | Google | TW | 是 | AS15169（Google） | ✓ | Google 一般服務 |
+| `challenges.cloudflare.com` | Cloudflare（Turnstile） | TW | 是（Cloudflare） | AS13335（Cloudflare） | ✓ | 公開網站人機驗證（bot 挑戰） |
+| `www.jkos.com` | 街口網絡（台灣電信網路 TTN 代管） | TW | 否 | AS－（TTN） |  | 健保費線上繳費（街口支付選項） |
 
 > **國家判定說明**：健保署所有 `*.nhi.gov.tw` 服務網域（含 `myhealthbank`、`mhbdata2`、`vhc`、`med`、`info`、`cloudicweb`、`etask`）解析至 `210.69.215.x`，ASN **AS4782（GSN，政府服務網路）**，為政府實體機房，資料留在台灣境內。身分認證鏈之網域經 DNS／traceroute 確認，均為**台灣境內**電信與憑證機構：中華電信行動（`mnogw.cht.com.tw`，AS17421）、遠傳（`login2.fetnet.net`，AS9674）、關貿網路（`mobileconnect.gtcloud.net.tw`，代管於數位聯合 Seednet AS7482）、臺灣網路認證 TWCA（`mid`／`rootocsp`／`twcasslocsp.twca.com.tw`，AS9924／AS3462）。`www.nhi.gov.tw`（公開網站）與 `api.tgos.tw`（地圖 API）分別由 **Cloudflare（AS13335）**與 **Google Cloud（AS396982）**承載，採 Anycast，連線節點判定位於台灣，但**營運商為海外雲端**，出境記「可能」。Google 分析與推播服務（AS15169）同屬海外雲端。
+
+> **國家／Anycast 判定（`mtr --tcp --port 443`）**：以 TCP/443 終點延遲與 PTR／ASN 判定連線節點國家；Cloudflare、Google、Meta、CloudFront、GCP Global LB 等標 Anycast ✓。營運商為海外者，資料出境仍可能為「是／可能」，與連線節點國家分開判斷。
 
 ### 1. 健保署核心健康資料（中央健康保險署，台灣，非公有雲）⭐ 敏感
 
@@ -76,13 +78,13 @@ title: 健保快易通
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| myhealthbank.nhi.gov.tw | A | 210.69.215.158 | AS4782 | TW |
-| mhbdata2.nhi.gov.tw | A | 210.69.215.149 | AS4782 | TW |
-| vhc.nhi.gov.tw | A | 210.69.215.143 | AS4782 | TW |
-| med.nhi.gov.tw | A | 210.69.215.170 | AS4782 | TW |
-| info.nhi.gov.tw | A | 210.69.215.152 | AS4782 | TW |
-| cloudicweb.nhi.gov.tw | A | 210.69.215.202 | AS4782 | TW |
-| etask.nhi.gov.tw | A | 210.69.215.166 | AS4782 | TW |
+| myhealthbank.nhi.gov.tw | A | 210.69.215.158 | AS4782（GSN） | TW |
+| mhbdata2.nhi.gov.tw | A | 210.69.215.149 | AS4782（GSN） | TW |
+| vhc.nhi.gov.tw | A | 210.69.215.143 | AS4782（GSN） | TW |
+| med.nhi.gov.tw | A | 210.69.215.170 | AS4782（GSN） | TW |
+| info.nhi.gov.tw | A | 210.69.215.152 | AS4782（GSN） | TW |
+| cloudicweb.nhi.gov.tw | A | 210.69.215.202 | AS4782（GSN） | TW |
+| etask.nhi.gov.tw | A | 210.69.215.166 | AS4782（GSN） | TW |
 
 AS4782 為 GSN（政府服務網路）。`cloudicweb.nhi.gov.tw`（健保卡網路服務註冊）與 `etask.nhi.gov.tw` 經 DNS 確認亦解析至 `210.69.215.x`（AS4782 GSN，台灣），與其他健保署核心網域一致。
 
@@ -98,7 +100,7 @@ AS4782 為 GSN（政府服務網路）。`cloudicweb.nhi.gov.tw`（健保卡網�
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| www.nhi.gov.tw | CNAME→A | 172.65.90.66 / 172.65.90.67 | AS13335 | TW/US |
+| www.nhi.gov.tw | CNAME→A | 172.65.90.66 / 172.65.90.67 | AS13335（Cloudflare） | TW/US |
 
 AS13335 為 Cloudflare, Inc.。
 
@@ -120,12 +122,12 @@ AS13335 為 Cloudflare, Inc.。
 
 | 網域 | 解析 IP | ASN | 所屬 | 國家 |
 |------|---------|-----|------|------|
-| mnogw.cht.com.tw | 211.79.35.179 | AS17421 | 中華電信（行動） | TW |
-| login2.fetnet.net | 211.73.144.8 | AS9674 | 遠傳電信 | TW |
-| mobileconnect.gtcloud.net.tw | 210.200.69.57 | AS7482 | 關貿網路（代管數位聯合 Seednet） | TW |
-| mid.twca.com.tw | 219.87.64.184 / 60.250.3.152 | AS9924 / AS3462 | TWCA | TW |
-| rootocsp.twca.com.tw | 219.87.64.165 / 60.250.3.135 | AS9924 / AS3462 | TWCA | TW |
-| twcasslocsp.twca.com.tw | 219.87.64.165 / 60.250.3.135 | AS9924 / AS3462 | TWCA | TW |
+| mnogw.cht.com.tw | 211.79.35.179 | AS17421（中華電信行動） | 中華電信（行動） | TW |
+| login2.fetnet.net | 211.73.144.8 | AS9674（遠傳電信） | 遠傳電信 | TW |
+| mobileconnect.gtcloud.net.tw | 210.200.69.57 | AS7482（數位聯合 Seednet） | 關貿網路（代管數位聯合 Seednet） | TW |
+| mid.twca.com.tw | 219.87.64.184 / 60.250.3.152 | AS9924（台灣固網） / AS3462（中華電信 HiNet） | TWCA | TW |
+| rootocsp.twca.com.tw | 219.87.64.165 / 60.250.3.135 | AS9924（台灣固網） / AS3462（中華電信 HiNet） | TWCA | TW |
+| twcasslocsp.twca.com.tw | 219.87.64.165 / 60.250.3.135 | AS9924（台灣固網） / AS3462（中華電信 HiNet） | TWCA | TW |
 
 AS17421 為中華電信行動業務；AS9674 為遠傳電信（Far EasTone）；AS7482 為數位聯合電信（Seednet，代管關貿服務）；AS9924 為台灣固網（Taiwan Fixed Network）；AS3462 為中華電信 HiNet。TWCA 之主機同時多重連線於 AS9924 與 AS3462，皆台灣。
 
@@ -140,8 +142,8 @@ AS17421 為中華電信行動業務；AS9674 為遠傳電信（Far EasTone）；
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| wmts.nlsc.gov.tw | A | 140.110.134.19 | AS7539 | TW |
-| api.tgos.tw | A | 34.160.0.116 | AS396982 | TW |
+| wmts.nlsc.gov.tw | A | 140.110.134.19 | AS7539（國網中心） | TW |
+| api.tgos.tw | A | 34.160.0.116 | AS396982（Google Cloud） | TW |
 
 AS7539 為國網中心（NCHC）；AS396982 為 Google Cloud Platform。`api.tgos.tw` 為本次流量最高之單一主機（288 次），皆連 `34.160.0.116`（Google Cloud），顯示地圖／定位查詢密集依賴此 GCP 承載之政府地圖服務。
 
@@ -168,8 +170,8 @@ AS7539 為國網中心（NCHC）；AS396982 為 Google Cloud Platform。`api.tgo
 
 | 網域 | 類型 | 解析 IP | ASN | 國家 |
 |------|------|---------|-----|------|
-| www.google-analytics.com | A | 216.239.32.178 | AS15169 | TW |
-| firebaselogging-pa.googleapis.com | A | 172.217.112.4 | AS15169 | TW |
+| www.google-analytics.com | A | 216.239.32.178 | AS15169（Google） | TW |
+| firebaselogging-pa.googleapis.com | A | 172.217.112.4 | AS15169（Google） | TW |
 
 AS15169 為 Google LLC。`app-analytics-services.com`、`www.googletagmanager.com`、`fcmtoken.googleapis.com`、`device-provisioning.googleapis.com` 亦屬 Google（AS15169，Anycast，連線節點台灣，營運商海外）。
 
